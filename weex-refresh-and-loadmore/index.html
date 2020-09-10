@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"78.141.198.216","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="下拉刷新和加载更多是列表页面常用功能。通过下拉页面的手势刷新页面，通过上啦到页面底部加载下一页内容。 相关Weex组件 &amp;lt;scroller&amp;gt;当子组件高度超过一屏时，需要使用scroller包含所有子组件，以实现内容随手势滚动。（然而，实践证明，Web平台不加scroller也能滑动，Android和iOS是滑不动的）。scroller可包含任意类型子组件。不过，鉴于scroller在A">
+<meta name="keywords" content="Android,WEEX">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Weex下拉刷新和加载更多">
+<meta property="og:url" content="http://78.141.198.216/blog/index.html/weex-refresh-and-loadmore/index.html">
+<meta property="og:site_name" content="Find The Way">
+<meta property="og:description" content="下拉刷新和加载更多是列表页面常用功能。通过下拉页面的手势刷新页面，通过上啦到页面底部加载下一页内容。 相关Weex组件 &amp;lt;scroller&amp;gt;当子组件高度超过一屏时，需要使用scroller包含所有子组件，以实现内容随手势滚动。（然而，实践证明，Web平台不加scroller也能滑动，Android和iOS是滑不动的）。scroller可包含任意类型子组件。不过，鉴于scroller在A">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://78.141.198.216/assets/weex_scroller_android_layout.png">
+<meta property="og:updated_time" content="2020-09-10T09:27:10.486Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Weex下拉刷新和加载更多">
+<meta name="twitter:description" content="下拉刷新和加载更多是列表页面常用功能。通过下拉页面的手势刷新页面，通过上啦到页面底部加载下一页内容。 相关Weex组件 &amp;lt;scroller&amp;gt;当子组件高度超过一屏时，需要使用scroller包含所有子组件，以实现内容随手势滚动。（然而，实践证明，Web平台不加scroller也能滑动，Android和iOS是滑不动的）。scroller可包含任意类型子组件。不过，鉴于scroller在A">
+<meta name="twitter:image" content="http://78.141.198.216/assets/weex_scroller_android_layout.png">
+
+<link rel="canonical" href="http://78.141.198.216/blog/index.html/weex-refresh-and-loadmore/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>Weex下拉刷新和加载更多 | Find The Way</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Find The Way</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">You cannot change the world, but you can change an app.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://78.141.198.216/blog/index.html/weex-refresh-and-loadmore/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="FengShenzhu">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Find The Way">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Weex下拉刷新和加载更多
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-08-20 21:00:00" itemprop="dateCreated datePublished" datetime="2018-08-20T21:00:00+08:00">2018-08-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-10 17:27:10" itemprop="dateModified" datetime="2020-09-10T17:27:10+08:00">2020-09-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>下拉刷新和加载更多是列表页面常用功能。通过下拉页面的手势刷新页面，通过上啦到页面底部加载下一页内容。</p>
+<h2 id="相关Weex组件"><a href="#相关Weex组件" class="headerlink" title="相关Weex组件"></a>相关Weex组件</h2><ul>
+<li><code>&lt;scroller&gt;</code><br>当子组件高度超过一屏时，需要使用<code>scroller</code>包含所有子组件，以实现内容随手势滚动。（然而，实践证明，Web平台不加<code>scroller</code>也能滑动，Android和iOS是滑不动的）。<code>scroller</code>可包含任意类型子组件。不过，鉴于<code>scroller</code>在Android上布局性能问题，这个控件在子控件较多时谨慎使用。</li>
+</ul>
+<a id="more"></a>
+
+<div>
+  <img src="/assets/weex_scroller_android_layout.png" style="width: 50%;">
+</div>
+
+<ul>
+<li><code>&lt;list&gt;</code>和<code>&lt;cell&gt;</code><br>这就是我们常见的列表了。父组件用<list>，包含若干个<cell>子组件。<code>list</code>的子组件要求严格，只能包含<code>cell</code>/<code>header</code>/<code>refresh</code>/<code>loading</code>四种组件或是fix定位的组件。<code>cell</code>显示列表元素内容，<code>header</code>实现列表固定头部。</cell></list></li>
+<li><code>&lt;refresh&gt;</code><br>下拉刷新组件，一般放在<code>scroller</code>或<code>list</code>头部</li>
+<li><code>&lt;loading&gt;</code><br>加载更多组件，一般放在<code>scroller</code>或<code>list</code>尾部</li>
+</ul>
+<h2 id="下拉刷新"><a href="#下拉刷新" class="headerlink" title="下拉刷新"></a>下拉刷新</h2><p>下拉刷新通过<code>refresh</code>组件实现。示例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line">&lt;template&gt;</span><br><span class="line">  &lt;list&gt;</span><br><span class="line">    &lt;refresh <span class="class"><span class="keyword">class</span></span>=<span class="string">"refresh"</span> @refresh=<span class="string">"onrefresh"</span> @pullingdown=<span class="string">"onpullingdown"</span> :display=<span class="string">"refreshing ? 'show' : 'hide'"</span>&gt;</span><br><span class="line">      &lt;text <span class="class"><span class="keyword">class</span></span>=<span class="string">"indicator-text"</span>&gt;Refreshing ...&lt;<span class="regexp">/text&gt;</span></span><br><span class="line"><span class="regexp">      &lt;loading-indicator class="indicator"&gt;&lt;/</span>loading-indicator&gt;</span><br><span class="line">    &lt;<span class="regexp">/refresh&gt;</span></span><br><span class="line"><span class="regexp">    &lt;cell class="cell" v-for="num in lists"&gt;</span></span><br><span class="line"><span class="regexp">      &lt;div class="panel"&gt;</span></span><br><span class="line"><span class="regexp">        &lt;text class="text"&gt;&#123;&#123;num&#125;&#125;&lt;/</span>text&gt;</span><br><span class="line">      &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>cell&gt;</span><br><span class="line">  &lt;<span class="regexp">/list&gt;</span></span><br><span class="line"><span class="regexp">&lt;/</span>template&gt;</span><br><span class="line"></span><br><span class="line">&lt;script&gt;</span><br><span class="line">  <span class="keyword">const</span> modal = weex.requireModule(<span class="string">'modal'</span>)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">    data () &#123;</span><br><span class="line">      <span class="keyword">return</span> &#123;</span><br><span class="line">        refreshing: <span class="literal">false</span>,</span><br><span class="line">        lists: [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    methods: &#123;</span><br><span class="line">      onrefresh (event) &#123;</span><br><span class="line">        modal.toast(&#123; <span class="attr">message</span>: <span class="string">'Refreshing'</span>, <span class="attr">duration</span>: <span class="number">1</span> &#125;)</span><br><span class="line">        <span class="keyword">this</span>.refreshing = <span class="literal">true</span></span><br><span class="line">        setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">this</span>.lists = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">0</span>]</span><br><span class="line">          <span class="keyword">this</span>.refreshing = <span class="literal">false</span></span><br><span class="line">        &#125;, <span class="number">2000</span>)</span><br><span class="line">      &#125;,</span><br><span class="line">      onpullingdown (event) &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">"dy: "</span> + event.dy)</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">"pullingDistance: "</span> + event.pullingDistance)</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">"viewHeight: "</span> + event.viewHeight)</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">"type: "</span> + event.type)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&lt;<span class="regexp">/script&gt;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">&lt;style scoped&gt;</span></span><br><span class="line"><span class="regexp">  .refresh &#123;</span></span><br><span class="line"><span class="regexp">    width: 750;</span></span><br><span class="line"><span class="regexp">    display: -ms-flex;</span></span><br><span class="line"><span class="regexp">    display: -webkit-flex;</span></span><br><span class="line"><span class="regexp">    display: flex;</span></span><br><span class="line"><span class="regexp">    -ms-flex-align: center;</span></span><br><span class="line"><span class="regexp">    -webkit-align-items: center;</span></span><br><span class="line"><span class="regexp">    -webkit-box-align: center;</span></span><br><span class="line"><span class="regexp">    align-items: center;</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">  .indicator-text &#123;</span></span><br><span class="line"><span class="regexp">    color: #888888;</span></span><br><span class="line"><span class="regexp">    font-size: 42px;</span></span><br><span class="line"><span class="regexp">    text-align: center;</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">  .indicator &#123;</span></span><br><span class="line"><span class="regexp">    margin-top: 16px;</span></span><br><span class="line"><span class="regexp">    height: 40px;</span></span><br><span class="line"><span class="regexp">    width: 40px;</span></span><br><span class="line"><span class="regexp">    color: blue;</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">  .panel &#123;</span></span><br><span class="line"><span class="regexp">    width: 600px;</span></span><br><span class="line"><span class="regexp">    height: 250px;</span></span><br><span class="line"><span class="regexp">    margin-left: 75px;</span></span><br><span class="line"><span class="regexp">    margin-top: 35px;</span></span><br><span class="line"><span class="regexp">    margin-bottom: 35px;</span></span><br><span class="line"><span class="regexp">    flex-direction: column;</span></span><br><span class="line"><span class="regexp">    justify-content: center;</span></span><br><span class="line"><span class="regexp">    border-width: 2px;</span></span><br><span class="line"><span class="regexp">    border-style: solid;</span></span><br><span class="line"><span class="regexp">    border-color: #DDDDDD;</span></span><br><span class="line"><span class="regexp">    background-color: #F5F5F5;</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">  .text &#123;</span></span><br><span class="line"><span class="regexp">    font-size: 50px;</span></span><br><span class="line"><span class="regexp">    text-align: center;</span></span><br><span class="line"><span class="regexp">    color: #41B883;</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">&lt;/</span>style&gt;</span><br></pre></td></tr></table></figure>
+
+<p><code>refresh</code>组件支持<code>refresh</code>和<code>pullingdown</code>事件。手势拖动时，<code>pullingdown</code>持续触发，松开手后形成完整的下拉刷新手势触发<code>refresh</code>事件。</p>
+<h2 id="加载更多"><a href="#加载更多" class="headerlink" title="加载更多"></a>加载更多</h2><p>加载更多可以直接在<code>list</code>实现监听，也可以通过<code>loading</code>实现监听。</p>
+<ul>
+<li><p>直接使用<code>list</code><br>示例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line">&lt;template&gt;</span><br><span class="line">  &lt;list @loadmore=<span class="string">"fetch"</span> loadmoreoffset=<span class="string">"10"</span>&gt;</span><br><span class="line">    &lt;cell v-<span class="keyword">for</span>=<span class="string">"(num, i) in lists"</span> :key=<span class="string">"i"</span>&gt;</span><br><span class="line">      &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"panel"</span>&gt;</span><br><span class="line">        &lt;text <span class="class"><span class="keyword">class</span></span>=<span class="string">"text"</span>&gt;&#123;&#123;num&#125;&#125;&lt;<span class="regexp">/text&gt;</span></span><br><span class="line"><span class="regexp">      &lt;/</span>div&gt;</span><br><span class="line">    &lt;<span class="regexp">/cell&gt;</span></span><br><span class="line"><span class="regexp">  &lt;/</span>list&gt;</span><br><span class="line">&lt;<span class="regexp">/template&gt;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">&lt;script&gt;</span></span><br><span class="line"><span class="regexp">  const modal = weex.requireModule('modal')</span></span><br><span class="line"><span class="regexp">  const LOADMORE_COUNT = 4</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">  export default &#123;</span></span><br><span class="line"><span class="regexp">    data () &#123;</span></span><br><span class="line"><span class="regexp">      return &#123;</span></span><br><span class="line"><span class="regexp">        lists: [1, 2, 3, 4, 5]</span></span><br><span class="line"><span class="regexp">      &#125;</span></span><br><span class="line"><span class="regexp">    &#125;,</span></span><br><span class="line"><span class="regexp">    methods: &#123;</span></span><br><span class="line"><span class="regexp">      fetch (event) &#123;</span></span><br><span class="line"><span class="regexp">        modal.toast(&#123; message: 'loadmore', duration: 1 &#125;)</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">        setTimeout(() =&gt; &#123;</span></span><br><span class="line"><span class="regexp">          const length = this.lists.length</span></span><br><span class="line"><span class="regexp">          for (let i = length; i &lt; length + LOADMORE_COUNT; ++i) &#123;</span></span><br><span class="line"><span class="regexp">            this.lists.push(i + 1)</span></span><br><span class="line"><span class="regexp">          &#125;</span></span><br><span class="line"><span class="regexp">        &#125;, 800)</span></span><br><span class="line"><span class="regexp">      &#125;</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">&lt;/</span>script&gt;</span><br><span class="line"></span><br><span class="line">&lt;style scoped&gt;</span><br><span class="line">  .panel &#123;</span><br><span class="line">    width: <span class="number">600</span>px;</span><br><span class="line">    height: <span class="number">250</span>px;</span><br><span class="line">    margin-left: <span class="number">75</span>px;</span><br><span class="line">    margin-top: <span class="number">35</span>px;</span><br><span class="line">    margin-bottom: <span class="number">35</span>px;</span><br><span class="line">    flex-direction: column;</span><br><span class="line">    justify-content: center;</span><br><span class="line">    border-width: <span class="number">2</span>px;</span><br><span class="line">    border-style: solid;</span><br><span class="line">    border-color: rgb(<span class="number">162</span>, <span class="number">217</span>, <span class="number">192</span>);</span><br><span class="line">    background-color: rgba(<span class="number">162</span>, <span class="number">217</span>, <span class="number">192</span>, <span class="number">0.2</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  .text &#123;</span><br><span class="line">    font-size: <span class="number">100</span>px;</span><br><span class="line">    text-align: center;</span><br><span class="line">    color: #41B883;</span><br><span class="line">  &#125;</span><br><span class="line">&lt;<span class="regexp">/style&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用<code>loading</code>组件<br>示例：</p>
+</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line">&lt;template&gt;</span><br><span class="line">  &lt;list&gt;</span><br><span class="line">    &lt;cell <span class="class"><span class="keyword">class</span></span>=<span class="string">"cell"</span> v-<span class="keyword">for</span>=<span class="string">"num in lists"</span>&gt;</span><br><span class="line">      &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"panel"</span>&gt;</span><br><span class="line">        &lt;text <span class="class"><span class="keyword">class</span></span>=<span class="string">"text"</span>&gt;&#123;&#123;num&#125;&#125;&lt;<span class="regexp">/text&gt;</span></span><br><span class="line"><span class="regexp">      &lt;/</span>div&gt;</span><br><span class="line">    &lt;<span class="regexp">/cell&gt;</span></span><br><span class="line"><span class="regexp">    &lt;loading class="loading" @loading="onloading" :display="loadinging ? 'show' : 'hide'"&gt;</span></span><br><span class="line"><span class="regexp">      &lt;text class="indicator-text"&gt;Loading ...&lt;/</span>text&gt;</span><br><span class="line">      &lt;loading-indicator <span class="class"><span class="keyword">class</span></span>=<span class="string">"indicator"</span>&gt;&lt;<span class="regexp">/loading-indicator&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>loading&gt;</span><br><span class="line">  &lt;<span class="regexp">/list&gt;</span></span><br><span class="line"><span class="regexp">&lt;/</span>template&gt;</span><br><span class="line"></span><br><span class="line">&lt;script&gt;</span><br><span class="line">  <span class="keyword">const</span> modal = weex.requireModule(<span class="string">'modal'</span>)</span><br><span class="line">  <span class="keyword">const</span> LOADMORE_COUNT = <span class="number">4</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">    data () &#123;</span><br><span class="line">      <span class="keyword">return</span> &#123;</span><br><span class="line">        loadinging: <span class="literal">false</span>,</span><br><span class="line">        lists: [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    methods: &#123;</span><br><span class="line">      onloading (event) &#123;</span><br><span class="line">        modal.toast(&#123; <span class="attr">message</span>: <span class="string">'Loading'</span>, <span class="attr">duration</span>: <span class="number">1</span> &#125;)</span><br><span class="line">        <span class="keyword">this</span>.loadinging = <span class="literal">true</span></span><br><span class="line">        setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">const</span> length = <span class="keyword">this</span>.lists.length</span><br><span class="line">          <span class="keyword">for</span> (<span class="keyword">let</span> i = length; i &lt; length + LOADMORE_COUNT; ++i) &#123;</span><br><span class="line">            <span class="keyword">this</span>.lists.push(i + <span class="number">1</span>)</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">this</span>.loadinging = <span class="literal">false</span></span><br><span class="line">        &#125;, <span class="number">2000</span>)</span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&lt;<span class="regexp">/script&gt;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">&lt;style scoped&gt;</span></span><br><span class="line"><span class="regexp">  .loading &#123;</span></span><br><span class="line"><span class="regexp">    width: 750;</span></span><br><span class="line"><span class="regexp">    display: -ms-flex;</span></span><br><span class="line"><span class="regexp">    display: -webkit-flex;</span></span><br><span class="line"><span class="regexp">    display: flex;</span></span><br><span class="line"><span class="regexp">    -ms-flex-align: center;</span></span><br><span class="line"><span class="regexp">    -webkit-align-items: center;</span></span><br><span class="line"><span class="regexp">    -webkit-box-align: center;</span></span><br><span class="line"><span class="regexp">    align-items: center;</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">  .indicator-text &#123;</span></span><br><span class="line"><span class="regexp">    color: #888888;</span></span><br><span class="line"><span class="regexp">    font-size: 42px;</span></span><br><span class="line"><span class="regexp">    text-align: center;</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">  .indicator &#123;</span></span><br><span class="line"><span class="regexp">    margin-top: 16px;</span></span><br><span class="line"><span class="regexp">    height: 40px;</span></span><br><span class="line"><span class="regexp">    width: 40px;</span></span><br><span class="line"><span class="regexp">    color: blue;</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">  .panel &#123;</span></span><br><span class="line"><span class="regexp">    width: 600px;</span></span><br><span class="line"><span class="regexp">    height: 250px;</span></span><br><span class="line"><span class="regexp">    margin-left: 75px;</span></span><br><span class="line"><span class="regexp">    margin-top: 35px;</span></span><br><span class="line"><span class="regexp">    margin-bottom: 35px;</span></span><br><span class="line"><span class="regexp">    flex-direction: column;</span></span><br><span class="line"><span class="regexp">    justify-content: center;</span></span><br><span class="line"><span class="regexp">    border-width: 2px;</span></span><br><span class="line"><span class="regexp">    border-style: solid;</span></span><br><span class="line"><span class="regexp">    border-color: #DDDDDD;</span></span><br><span class="line"><span class="regexp">    background-color: #F5F5F5;</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">  .text &#123;</span></span><br><span class="line"><span class="regexp">    font-size: 50px;</span></span><br><span class="line"><span class="regexp">    text-align: center;</span></span><br><span class="line"><span class="regexp">    color: #41B883;</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">&lt;/</span>style&gt;</span><br></pre></td></tr></table></figure>
+
+<p>然而，在iOS中，加载到下一页数据UI刷新时抖动了。</p>
+<div>
+  <video width="50%" autoplay="true" loop="true" style="display:block; margin: 0 auto;">
+    <source src="/assets/weex_list_loading_ios_shake.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+  </video>
+</div>
+
+<p>去掉<code>loading</code>里的所有子组件就正常了。<br>如果要显示加载下一页的footer UI，就不要用<code>list</code> + <code>loading</code>了。自定义一个<code>cell</code>子组件吧。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line">&lt;template&gt;</span><br><span class="line">  &lt;list @loadmore=<span class="string">"onloading"</span>&gt;</span><br><span class="line">    &lt;cell <span class="class"><span class="keyword">class</span></span>=<span class="string">"cell"</span> v-<span class="keyword">for</span>=<span class="string">"num in lists"</span>&gt;</span><br><span class="line">      &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"panel"</span>&gt;</span><br><span class="line">        &lt;text <span class="class"><span class="keyword">class</span></span>=<span class="string">"text"</span>&gt;&#123;&#123;num&#125;&#125;&lt;<span class="regexp">/text&gt;</span></span><br><span class="line"><span class="regexp">      &lt;/</span>div&gt;</span><br><span class="line">    &lt;<span class="regexp">/cell&gt;</span></span><br><span class="line"><span class="regexp">    &lt;cell class="loading"&gt;</span></span><br><span class="line"><span class="regexp">      &lt;text class="indicator-text"&gt;Loading ...&lt;/</span>text&gt;</span><br><span class="line">    &lt;<span class="regexp">/cell&gt;</span></span><br><span class="line"><span class="regexp">  &lt;/</span>list&gt;</span><br><span class="line">&lt;<span class="regexp">/template&gt;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">&lt;script&gt;</span></span><br><span class="line"><span class="regexp">  const modal = weex.requireModule('modal')</span></span><br><span class="line"><span class="regexp">  const LOADMORE_COUNT = 4</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">  export default &#123;</span></span><br><span class="line"><span class="regexp">    data () &#123;</span></span><br><span class="line"><span class="regexp">      return &#123;</span></span><br><span class="line"><span class="regexp">        loadinging: false,</span></span><br><span class="line"><span class="regexp">        lists: [1, 2, 3, 4, 5]</span></span><br><span class="line"><span class="regexp">      &#125;</span></span><br><span class="line"><span class="regexp">    &#125;,</span></span><br><span class="line"><span class="regexp">    methods: &#123;</span></span><br><span class="line"><span class="regexp">      onloading (event) &#123;</span></span><br><span class="line"><span class="regexp">        modal.toast(&#123; message: 'Loading', duration: 1 &#125;)</span></span><br><span class="line"><span class="regexp">        this.loadinging = true</span></span><br><span class="line"><span class="regexp">        setTimeout(() =&gt; &#123;</span></span><br><span class="line"><span class="regexp">          const length = this.lists.length</span></span><br><span class="line"><span class="regexp">          for (let i = length; i &lt; length + LOADMORE_COUNT; ++i) &#123;</span></span><br><span class="line"><span class="regexp">            this.lists.push(i + 1)</span></span><br><span class="line"><span class="regexp">          &#125;</span></span><br><span class="line"><span class="regexp">          this.loadinging = false</span></span><br><span class="line"><span class="regexp">        &#125;, 2000)</span></span><br><span class="line"><span class="regexp">      &#125;,</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">&lt;/</span>script&gt;</span><br><span class="line"></span><br><span class="line">&lt;style scoped&gt;</span><br><span class="line">  .loading &#123;</span><br><span class="line">    width: <span class="number">750</span>;</span><br><span class="line">    display: -ms-flex;</span><br><span class="line">    display: -webkit-flex;</span><br><span class="line">    display: flex;</span><br><span class="line">    -ms-flex-align: center;</span><br><span class="line">    -webkit-align-items: center;</span><br><span class="line">    -webkit-box-align: center;</span><br><span class="line">    align-items: center;</span><br><span class="line">  &#125;</span><br><span class="line">  .indicator-text &#123;</span><br><span class="line">    color: #888888;</span><br><span class="line">    font-size: <span class="number">42</span>px;</span><br><span class="line">    text-align: center;</span><br><span class="line">  &#125;</span><br><span class="line">  .panel &#123;</span><br><span class="line">    width: <span class="number">600</span>px;</span><br><span class="line">    height: <span class="number">250</span>px;</span><br><span class="line">    margin-left: <span class="number">75</span>px;</span><br><span class="line">    margin-top: <span class="number">35</span>px;</span><br><span class="line">    margin-bottom: <span class="number">35</span>px;</span><br><span class="line">    flex-direction: column;</span><br><span class="line">    justify-content: center;</span><br><span class="line">    border-width: <span class="number">2</span>px;</span><br><span class="line">    border-style: solid;</span><br><span class="line">    border-color: #DDDDDD;</span><br><span class="line">    background-color: #F5F5F5;</span><br><span class="line">  &#125;</span><br><span class="line">  .text &#123;</span><br><span class="line">    font-size: <span class="number">50</span>px;</span><br><span class="line">    text-align: center;</span><br><span class="line">    color: #41B883;</span><br><span class="line">  &#125;</span><br><span class="line">&lt;<span class="regexp">/style&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="下拉刷新-加载更多"><a href="#下拉刷新-加载更多" class="headerlink" title="下拉刷新+加载更多"></a>下拉刷新+加载更多</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br></pre></td><td class="code"><pre><span class="line">&lt;template&gt;</span><br><span class="line">  &lt;list @loadmore=<span class="string">"onloading"</span>&gt;</span><br><span class="line">    &lt;refresh <span class="class"><span class="keyword">class</span></span>=<span class="string">"refresh"</span> @refresh=<span class="string">"onrefresh"</span> :display=<span class="string">"refreshing ? 'show' : 'hide'"</span>&gt;</span><br><span class="line">      &lt;text <span class="class"><span class="keyword">class</span></span>=<span class="string">"indicator-text"</span>&gt;Refreshing ...&lt;<span class="regexp">/text&gt;</span></span><br><span class="line"><span class="regexp">      &lt;loading-indicator class="indicator"&gt;&lt;/</span>loading-indicator&gt;</span><br><span class="line">    &lt;<span class="regexp">/refresh&gt;</span></span><br><span class="line"><span class="regexp">    &lt;cell class="cell" v-for="num in lists"&gt;</span></span><br><span class="line"><span class="regexp">      &lt;div class="panel"&gt;</span></span><br><span class="line"><span class="regexp">        &lt;text class="text"&gt;&#123;&#123;num&#125;&#125;&lt;/</span>text&gt;</span><br><span class="line">      &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>cell&gt;</span><br><span class="line">    &lt;cell <span class="class"><span class="keyword">class</span></span>=<span class="string">"loading"</span>&gt;</span><br><span class="line">      &lt;text <span class="class"><span class="keyword">class</span></span>=<span class="string">"indicator-text"</span>&gt;Loading ...&lt;<span class="regexp">/text&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>cell&gt;</span><br><span class="line">  &lt;<span class="regexp">/list&gt;</span></span><br><span class="line"><span class="regexp">&lt;/</span>template&gt;</span><br><span class="line"></span><br><span class="line">&lt;script&gt;</span><br><span class="line">  <span class="keyword">const</span> modal = weex.requireModule(<span class="string">'modal'</span>)</span><br><span class="line">  <span class="keyword">const</span> LOADMORE_COUNT = <span class="number">4</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">    data () &#123;</span><br><span class="line">      <span class="keyword">return</span> &#123;</span><br><span class="line">        refreshing: <span class="literal">false</span>,</span><br><span class="line">        loadinging: <span class="literal">false</span>,</span><br><span class="line">        lists: [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    methods: &#123;</span><br><span class="line">      onrefresh (event) &#123;</span><br><span class="line">        modal.toast(&#123; <span class="attr">message</span>: <span class="string">'Refreshing'</span>, <span class="attr">duration</span>: <span class="number">1</span> &#125;)</span><br><span class="line">        <span class="keyword">this</span>.refreshing = <span class="literal">true</span></span><br><span class="line">        setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">this</span>.lists = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">0</span>]</span><br><span class="line">          <span class="keyword">this</span>.refreshing = <span class="literal">false</span></span><br><span class="line">        &#125;, <span class="number">2000</span>)</span><br><span class="line">      &#125;,</span><br><span class="line">      onloading (event) &#123;</span><br><span class="line">        modal.toast(&#123; <span class="attr">message</span>: <span class="string">'Loading'</span>, <span class="attr">duration</span>: <span class="number">1</span> &#125;)</span><br><span class="line">        <span class="keyword">this</span>.loadinging = <span class="literal">true</span></span><br><span class="line">        setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">const</span> length = <span class="keyword">this</span>.lists.length</span><br><span class="line">          <span class="keyword">for</span> (<span class="keyword">let</span> i = length; i &lt; length + LOADMORE_COUNT; ++i) &#123;</span><br><span class="line">            <span class="keyword">this</span>.lists.push(i + <span class="number">1</span>)</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">this</span>.loadinging = <span class="literal">false</span></span><br><span class="line">        &#125;, <span class="number">2000</span>)</span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&lt;<span class="regexp">/script&gt;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">&lt;style scoped&gt;</span></span><br><span class="line"><span class="regexp">  .refresh &#123;</span></span><br><span class="line"><span class="regexp">    width: 750;</span></span><br><span class="line"><span class="regexp">    display: -ms-flex;</span></span><br><span class="line"><span class="regexp">    display: -webkit-flex;</span></span><br><span class="line"><span class="regexp">    display: flex;</span></span><br><span class="line"><span class="regexp">    -ms-flex-align: center;</span></span><br><span class="line"><span class="regexp">    -webkit-align-items: center;</span></span><br><span class="line"><span class="regexp">    -webkit-box-align: center;</span></span><br><span class="line"><span class="regexp">    align-items: center;</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">  .indicator-text &#123;</span></span><br><span class="line"><span class="regexp">    color: #888888;</span></span><br><span class="line"><span class="regexp">    font-size: 42px;</span></span><br><span class="line"><span class="regexp">    text-align: center;</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">  .indicator &#123;</span></span><br><span class="line"><span class="regexp">    margin-top: 16px;</span></span><br><span class="line"><span class="regexp">    height: 40px;</span></span><br><span class="line"><span class="regexp">    width: 40px;</span></span><br><span class="line"><span class="regexp">    color: blue;</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">  .loading &#123;</span></span><br><span class="line"><span class="regexp">    width: 750;</span></span><br><span class="line"><span class="regexp">    display: -ms-flex;</span></span><br><span class="line"><span class="regexp">    display: -webkit-flex;</span></span><br><span class="line"><span class="regexp">    display: flex;</span></span><br><span class="line"><span class="regexp">    -ms-flex-align: center;</span></span><br><span class="line"><span class="regexp">    -webkit-align-items: center;</span></span><br><span class="line"><span class="regexp">    -webkit-box-align: center;</span></span><br><span class="line"><span class="regexp">    align-items: center;</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">  .panel &#123;</span></span><br><span class="line"><span class="regexp">    width: 600px;</span></span><br><span class="line"><span class="regexp">    height: 250px;</span></span><br><span class="line"><span class="regexp">    margin-left: 75px;</span></span><br><span class="line"><span class="regexp">    margin-top: 35px;</span></span><br><span class="line"><span class="regexp">    margin-bottom: 35px;</span></span><br><span class="line"><span class="regexp">    flex-direction: column;</span></span><br><span class="line"><span class="regexp">    justify-content: center;</span></span><br><span class="line"><span class="regexp">    border-width: 2px;</span></span><br><span class="line"><span class="regexp">    border-style: solid;</span></span><br><span class="line"><span class="regexp">    border-color: #DDDDDD;</span></span><br><span class="line"><span class="regexp">    background-color: #F5F5F5;</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">  .text &#123;</span></span><br><span class="line"><span class="regexp">    font-size: 50px;</span></span><br><span class="line"><span class="regexp">    text-align: center;</span></span><br><span class="line"><span class="regexp">    color: #41B883;</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">&lt;/</span>style&gt;</span><br></pre></td></tr></table></figure>
+
+<p>然而，加载更多一次后再下拉刷新一次，iOS又出现了刷新抖动。滑动到底部，web端正常，Android和iOS却无法触发加载更多了。去除<code>refresh</code>组件里的所有子组件，可以解决抖动问题。官方提供了<code>list</code>重置加载更多的方法<code>resetLoadmore</code>，每次下拉刷新后重置一下，下次加载更多即可触发。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line">&lt;template&gt;</span><br><span class="line">  &lt;list ref=<span class="string">"list"</span> @loadmore=<span class="string">"onloading"</span> loadmoreoffset=<span class="string">"10"</span>&gt;</span><br><span class="line">    &lt;refresh <span class="class"><span class="keyword">class</span></span>=<span class="string">"refresh"</span> @refresh=<span class="string">"onrefresh"</span> :display=<span class="string">"refreshing ? 'show' : 'hide'"</span>&gt;</span><br><span class="line">    &lt;<span class="regexp">/refresh&gt;</span></span><br><span class="line"><span class="regexp">    &lt;cell class="cell" v-for="num in lists"&gt;</span></span><br><span class="line"><span class="regexp">      &lt;div class="panel"&gt;</span></span><br><span class="line"><span class="regexp">        &lt;text class="text"&gt;&#123;&#123;num&#125;&#125;&lt;/</span>text&gt;</span><br><span class="line">      &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>cell&gt;</span><br><span class="line">    &lt;cell <span class="class"><span class="keyword">class</span></span>=<span class="string">"loading"</span>&gt;</span><br><span class="line">      &lt;text <span class="class"><span class="keyword">class</span></span>=<span class="string">"indicator-text"</span>&gt;Loading ...&lt;<span class="regexp">/text&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>cell&gt;</span><br><span class="line">  &lt;<span class="regexp">/list&gt;</span></span><br><span class="line"><span class="regexp">&lt;/</span>template&gt;</span><br><span class="line"></span><br><span class="line">&lt;script&gt;</span><br><span class="line">  <span class="keyword">const</span> modal = weex.requireModule(<span class="string">'modal'</span>)</span><br><span class="line">  <span class="keyword">const</span> LOADMORE_COUNT = <span class="number">4</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">    data () &#123;</span><br><span class="line">      <span class="keyword">return</span> &#123;</span><br><span class="line">        refreshing: <span class="literal">false</span>,</span><br><span class="line">        loadinging: <span class="literal">false</span>,</span><br><span class="line">        lists: [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    methods: &#123;</span><br><span class="line">      onrefresh (event) &#123;</span><br><span class="line">        modal.toast(&#123; <span class="attr">message</span>: <span class="string">'Refreshing'</span>, <span class="attr">duration</span>: <span class="number">1</span> &#125;)</span><br><span class="line">        <span class="keyword">this</span>.refreshing = <span class="literal">true</span></span><br><span class="line">        setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">this</span>.lists = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">0</span>]</span><br><span class="line">          <span class="keyword">this</span>.refreshing = <span class="literal">false</span></span><br><span class="line">          <span class="keyword">this</span>.$refs.list.resetLoadmore</span><br><span class="line">        &#125;, <span class="number">2000</span>)</span><br><span class="line">      &#125;,</span><br><span class="line">      onloading (event) &#123;</span><br><span class="line">        modal.toast(&#123; <span class="attr">message</span>: <span class="string">'Loading'</span>, <span class="attr">duration</span>: <span class="number">1</span> &#125;)</span><br><span class="line">        <span class="keyword">this</span>.loadinging = <span class="literal">true</span></span><br><span class="line">        setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">const</span> length = <span class="keyword">this</span>.lists.length</span><br><span class="line">          <span class="keyword">for</span> (<span class="keyword">let</span> i = length; i &lt; length + LOADMORE_COUNT; ++i) &#123;</span><br><span class="line">            <span class="keyword">this</span>.lists.push(i + <span class="number">1</span>)</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">this</span>.loadinging = <span class="literal">false</span></span><br><span class="line">        &#125;, <span class="number">2000</span>)</span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&lt;<span class="regexp">/script&gt;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">&lt;style scoped&gt;</span></span><br><span class="line"><span class="regexp">  .refresh &#123;</span></span><br><span class="line"><span class="regexp">    width: 750;</span></span><br><span class="line"><span class="regexp">    display: -ms-flex;</span></span><br><span class="line"><span class="regexp">    display: -webkit-flex;</span></span><br><span class="line"><span class="regexp">    display: flex;</span></span><br><span class="line"><span class="regexp">    -ms-flex-align: center;</span></span><br><span class="line"><span class="regexp">    -webkit-align-items: center;</span></span><br><span class="line"><span class="regexp">    -webkit-box-align: center;</span></span><br><span class="line"><span class="regexp">    align-items: center;</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">  .indicator-text &#123;</span></span><br><span class="line"><span class="regexp">    color: #888888;</span></span><br><span class="line"><span class="regexp">    font-size: 42px;</span></span><br><span class="line"><span class="regexp">    text-align: center;</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">  .loading &#123;</span></span><br><span class="line"><span class="regexp">    width: 750;</span></span><br><span class="line"><span class="regexp">    display: -ms-flex;</span></span><br><span class="line"><span class="regexp">    display: -webkit-flex;</span></span><br><span class="line"><span class="regexp">    display: flex;</span></span><br><span class="line"><span class="regexp">    -ms-flex-align: center;</span></span><br><span class="line"><span class="regexp">    -webkit-align-items: center;</span></span><br><span class="line"><span class="regexp">    -webkit-box-align: center;</span></span><br><span class="line"><span class="regexp">    align-items: center;</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">  .panel &#123;</span></span><br><span class="line"><span class="regexp">    width: 600px;</span></span><br><span class="line"><span class="regexp">    height: 250px;</span></span><br><span class="line"><span class="regexp">    margin-left: 75px;</span></span><br><span class="line"><span class="regexp">    margin-top: 35px;</span></span><br><span class="line"><span class="regexp">    margin-bottom: 35px;</span></span><br><span class="line"><span class="regexp">    flex-direction: column;</span></span><br><span class="line"><span class="regexp">    justify-content: center;</span></span><br><span class="line"><span class="regexp">    border-width: 2px;</span></span><br><span class="line"><span class="regexp">    border-style: solid;</span></span><br><span class="line"><span class="regexp">    border-color: #DDDDDD;</span></span><br><span class="line"><span class="regexp">    background-color: #F5F5F5;</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">  .text &#123;</span></span><br><span class="line"><span class="regexp">    font-size: 50px;</span></span><br><span class="line"><span class="regexp">    text-align: center;</span></span><br><span class="line"><span class="regexp">    color: #41B883;</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">&lt;/</span>style&gt;</span><br></pre></td></tr></table></figure>
+
+<p>这样，虽然有了下拉刷新和加载更多功能，却没有了下拉刷新的UI。<br>本想像自定义footer一样自定义一个<code>cell</code>作为下拉刷新的UI，但刷新时UI却抖动了。如有完美方案，还请赐教。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android/" rel="tag"># Android</a>
+              <a href="/tags/WEEX/" rel="tag"># WEEX</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/library-ffmpeg/" rel="prev" title="ffmpeg学习笔记">
+      <i class="fa fa-chevron-left"></i> ffmpeg学习笔记
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/framework_window/" rel="next" title="Android Window">
+      Android Window <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#相关Weex组件"><span class="nav-number">1.</span> <span class="nav-text">相关Weex组件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#下拉刷新"><span class="nav-number">2.</span> <span class="nav-text">下拉刷新</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#加载更多"><span class="nav-number">3.</span> <span class="nav-text">加载更多</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#下拉刷新-加载更多"><span class="nav-number">4.</span> <span class="nav-text">下拉刷新+加载更多</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">FengShenzhu</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">FengShenzhu</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"78.141.198.216","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Markdown对于写博客简直利器，在写之前心里就已经有了样式。有了语法支持，让程序员更激动的以为写作就是在Coding。要将Markdown文件发布到博客，得转化成HTML。Hexo就是一个非常容易使用的工具。 安装Hexo1npm install hexo-cli -g">
+<meta name="keywords" content="blog,hexo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Hexo搭建博客">
+<meta property="og:url" content="http://78.141.198.216/blog/index.html/hexo/index.html">
+<meta property="og:site_name" content="Find The Way">
+<meta property="og:description" content="Markdown对于写博客简直利器，在写之前心里就已经有了样式。有了语法支持，让程序员更激动的以为写作就是在Coding。要将Markdown文件发布到博客，得转化成HTML。Hexo就是一个非常容易使用的工具。 安装Hexo1npm install hexo-cli -g">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-09-10T09:28:20.254Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用Hexo搭建博客">
+<meta name="twitter:description" content="Markdown对于写博客简直利器，在写之前心里就已经有了样式。有了语法支持，让程序员更激动的以为写作就是在Coding。要将Markdown文件发布到博客，得转化成HTML。Hexo就是一个非常容易使用的工具。 安装Hexo1npm install hexo-cli -g">
+
+<link rel="canonical" href="http://78.141.198.216/blog/index.html/hexo/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>使用Hexo搭建博客 | Find The Way</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Find The Way</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">You cannot change the world, but you can change an app.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://78.141.198.216/blog/index.html/hexo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="FengShenzhu">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Find The Way">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用Hexo搭建博客
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2015-12-23 19:47:47" itemprop="dateCreated datePublished" datetime="2015-12-23T19:47:47+08:00">2015-12-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-10 17:28:20" itemprop="dateModified" datetime="2020-09-10T17:28:20+08:00">2020-09-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Tools/" itemprop="url" rel="index"><span itemprop="name">Tools</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Markdown对于写博客简直利器，在写之前心里就已经有了样式。有了语法支持，让程序员更激动的以为写作就是在Coding。<br>要将Markdown文件发布到博客，得转化成HTML。Hexo就是一个非常容易使用的工具。</p>
+<h4 id="安装Hexo"><a href="#安装Hexo" class="headerlink" title="安装Hexo"></a>安装Hexo</h4><figure class="highlight avrasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-<span class="keyword">cli</span> -g</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+<h4 id="新建一个博客"><a href="#新建一个博客" class="headerlink" title="新建一个博客"></a>新建一个博客</h4><figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">hexo</span> init <span class="keyword">blog</span></span><br><span class="line"><span class="keyword">cd </span><span class="keyword">blog</span></span><br><span class="line"><span class="keyword">npm </span>install</span><br></pre></td></tr></table></figure>
+
+<h4 id="新建一篇文章"><a href="#新建一篇文章" class="headerlink" title="新建一篇文章"></a>新建一篇文章</h4><figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo <span class="keyword">new</span> <span class="type">first</span>-blog</span><br></pre></td></tr></table></figure>
+
+<p>新建的md文件路径在<code>source/_post/first-blog.md</code>。</p>
+<h4 id="编辑文章"><a href="#编辑文章" class="headerlink" title="编辑文章"></a>编辑文章</h4><p>使用自己喜欢的Markdown编辑器修改first-blog.md。当然，一般的文本编辑器也是可以的。个人使用到较多的是<a href="http://www.sublimetext.com" target="_blank" rel="noopener">Sublime</a>编辑，使用<a href="http://www.typora.io" target="_blank" rel="noopener"><strong>typora</strong></a>预览、转PDF。</p>
+<h4 id="生成Html"><a href="#生成Html" class="headerlink" title="生成Html"></a>生成Html</h4><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo <span class="keyword">generate</span></span><br></pre></td></tr></table></figure>
+
+<p>可简写成：</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">hexo g</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="部署本地服务器"><a href="#部署本地服务器" class="headerlink" title="部署本地服务器"></a>部署本地服务器</h4><figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo <span class="keyword">server</span></span><br></pre></td></tr></table></figure>
+
+<p>同：</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">hexo s</span></span><br></pre></td></tr></table></figure>
+
+<p>浏览器可输入<code>http://0.0.0.0:4000</code>浏览本地网站了。</p>
+<h4 id="部署到服务器"><a href="#部署到服务器" class="headerlink" title="部署到服务器"></a>部署到服务器</h4><p>如果自己有HTTP服务器，可以将博客发布上去。配置github账号信息，可以部署到自己的<code>github.io</code>博客。</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">hexo deploy</span></span><br></pre></td></tr></table></figure>
+
+<p>同：</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">hexo d</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="其它常用命令"><a href="#其它常用命令" class="headerlink" title="其它常用命令"></a>其它常用命令</h4><ul>
+<li>hexo list post</li>
+<li>hexo clean</li>
+</ul>
+<h4 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h4><ul>
+<li>使用主题可以让博客更有趣，如<a href="https://github.com/litten/hexo-theme-yilia" target="_blank" rel="noopener"><strong>yilia</strong></a>。</li>
+<li>md文件名称中文可能导致<code>hexo g</code>出错，文件命名最好用英文，如<code>first-blog.md</code>。</li>
+<li>头部无<code>date</code>每次生成的都是当前生成网页的时间，会造成博客不按照时间顺序。</li>
+<li>把文章关键词提取添加到<code>tag</code>，可以生成以tags为索引的文章目录列表。单个tag可直接赋值，多个tag需用<code>[]</code>或者<code>-</code>。<br>单个tags：<figure class="highlight subunit"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">tags:</span> one</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>多个tags：</p>
+<figure class="highlight subunit"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">tags:</span> [one, two, three]</span><br></pre></td></tr></table></figure>
+
+<p>或者：</p>
+<figure class="highlight subunit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">tags:</span></span><br><span class="line">- one</span><br><span class="line">- two</span><br><span class="line">- three</span><br></pre></td></tr></table></figure>
+
+<p>当然，单个tag也可用多个tag的书写格式，如<code>tags: [one]</code></p>
+<ul>
+<li>声明文章的分类<code>catagories</code>，可以生成以catagories为索引的文章目录列表。书写格式同tag。</li>
+<li>附件可在<code>source/</code>下新建一个目录专门存放，如<code>source/assets/blog.png</code>，部署到github后路径为<code>http://yourname.github.io/assets/blog.png</code></li>
+<li>博客首页文章预览默认显示整篇，在每篇文章截断处使用<code>&lt;!-- more --&gt;</code>标识。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/blog/" rel="tag"># blog</a>
+              <a href="/tags/hexo/" rel="tag"># hexo</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/markdown/" rel="prev" title="常用Markdown语法">
+      <i class="fa fa-chevron-left"></i> 常用Markdown语法
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/library-reskin/" rel="next" title="Android换肤">
+      Android换肤 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#安装Hexo"><span class="nav-number">1.</span> <span class="nav-text">安装Hexo</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#新建一个博客"><span class="nav-number">2.</span> <span class="nav-text">新建一个博客</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#新建一篇文章"><span class="nav-number">3.</span> <span class="nav-text">新建一篇文章</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#编辑文章"><span class="nav-number">4.</span> <span class="nav-text">编辑文章</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#生成Html"><span class="nav-number">5.</span> <span class="nav-text">生成Html</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#部署本地服务器"><span class="nav-number">6.</span> <span class="nav-text">部署本地服务器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#部署到服务器"><span class="nav-number">7.</span> <span class="nav-text">部署到服务器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#其它常用命令"><span class="nav-number">8.</span> <span class="nav-text">其它常用命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Tips"><span class="nav-number">9.</span> <span class="nav-text">Tips</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">FengShenzhu</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">FengShenzhu</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

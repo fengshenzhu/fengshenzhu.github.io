@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"78.141.198.216","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="介绍通过Wasp库使用HTTP GET方式获取内容的示例介绍Wasp的使用，URL为https://api.github.com/users/sethfeng/repos使用Java interface提供HTTP API： 12345public interface GitHubService &amp;#123;    @GET(&quot;users/&amp;#123;user&amp;#125;/repos&quot;)    v">
+<meta name="keywords" content="Android,Network">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android网络库Wasp">
+<meta property="og:url" content="http://78.141.198.216/blog/index.html/library-wasp/index.html">
+<meta property="og:site_name" content="Find The Way">
+<meta property="og:description" content="介绍通过Wasp库使用HTTP GET方式获取内容的示例介绍Wasp的使用，URL为https://api.github.com/users/sethfeng/repos使用Java interface提供HTTP API： 12345public interface GitHubService &amp;#123;    @GET(&quot;users/&amp;#123;user&amp;#125;/repos&quot;)    v">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://github.com/orhanobut/wasp/raw/master/images/wasp-diagram.png">
+<meta property="og:updated_time" content="2020-09-10T09:31:30.560Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android网络库Wasp">
+<meta name="twitter:description" content="介绍通过Wasp库使用HTTP GET方式获取内容的示例介绍Wasp的使用，URL为https://api.github.com/users/sethfeng/repos使用Java interface提供HTTP API： 12345public interface GitHubService &amp;#123;    @GET(&quot;users/&amp;#123;user&amp;#125;/repos&quot;)    v">
+<meta name="twitter:image" content="https://github.com/orhanobut/wasp/raw/master/images/wasp-diagram.png">
+
+<link rel="canonical" href="http://78.141.198.216/blog/index.html/library-wasp/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>Android网络库Wasp | Find The Way</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Find The Way</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">You cannot change the world, but you can change an app.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://78.141.198.216/blog/index.html/library-wasp/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="FengShenzhu">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Find The Way">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Android网络库Wasp
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-01-29 18:00:27" itemprop="dateCreated datePublished" datetime="2016-01-29T18:00:27+08:00">2016-01-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-10 17:31:30" itemprop="dateModified" datetime="2020-09-10T17:31:30+08:00">2020-09-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>通过Wasp库使用HTTP GET方式获取内容的示例介绍Wasp的使用，URL为<a href="https://api.github.com/users/sethfeng/repos" target="_blank" rel="noopener">https://api.github.com/users/sethfeng/repos</a><br>使用Java interface提供HTTP API：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">GitHubService</span> </span>&#123;</span><br><span class="line">    <span class="meta">@GET</span>(<span class="string">"users/&#123;user&#125;/repos"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">listRepos</span><span class="params">(@Path(<span class="string">"user"</span>)</span> String user, </span></span><br><span class="line"><span class="function">                  Callback&lt;List&lt;Repo&gt;&gt; callback)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+<p>创建Wasp：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Wasp wasp = <span class="keyword">new</span> Wasp.Builder(getContext())</span><br><span class="line">            .setEndpoint(<span class="string">"https://api.github.com"</span>)</span><br><span class="line">            .build();</span><br></pre></td></tr></table></figure>
+
+<p>创建HTTP service：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GitHubService<span class="built_in"> service </span>= wasp.create(GitHubService.class);</span><br></pre></td></tr></table></figure>
+
+<p>调用HTTP service里方法发送请求：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">gitHubService.listRepos(<span class="string">"sethfeng"</span>, <span class="keyword">new</span> Callback&lt;List&lt;Repo&gt;&gt;&#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onSuccess</span><span class="params">(WaspResponse response, List&lt;Repo&gt; repos)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// do something</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onError</span><span class="params">(WaspError error)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// handle error</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h1 id="API"><a href="#API" class="headerlink" title="API"></a>API</h1><h2 id="请求方法GET-POST"><a href="#请求方法GET-POST" class="headerlink" title="请求方法GET/POST"></a>请求方法GET/POST</h2><p>HTTP请求方法使用注解标识：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GET</span>(...)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@POST</span>(...)</span><br></pre></td></tr></table></figure>
+
+<h2 id="URL组装"><a href="#URL组装" class="headerlink" title="URL组装"></a>URL组装</h2><p>先来看一个常见的URL组成部分：<br><code>http://example.com/index.html?name=sethfeng</code></p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">protocol</span> = http</span><br><span class="line"><span class="attr">host</span> = example.com</span><br><span class="line"><span class="attr">path</span> = /index.html</span><br><span class="line"><span class="attr">query</span> = name=sethfeng</span><br></pre></td></tr></table></figure>
+
+<p>再看Wasp对各参数的API封装：</p>
+<h3 id="protocol和host"><a href="#protocol和host" class="headerlink" title="- protocol和host"></a>- protocol和host</h3><p>使用Wasp的<code>EndPoint</code>声明，EndPoint又称baseUrl</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Wasp.Builder.setEndPoint(protocol + host)</span><br></pre></td></tr></table></figure>
+
+<h3 id="path"><a href="#path" class="headerlink" title="- path"></a>- path</h3><p>使用注解<code>Path</code>设置path中的参数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GET</span>(<span class="string">"/repos/&#123;id&#125;"</span>)</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">getRepo</span><span class="params">(@Path(<span class="string">"id"</span>)</span> String id, </span></span><br><span class="line"><span class="function">            Callback&lt;Repo&gt; callback)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>组装出的url为<code>https://api.github.com/repos/id</code></p>
+<h3 id="query"><a href="#query" class="headerlink" title="- query"></a>- query</h3><p>query参数设置：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GET</span>(<span class="string">"group/&#123;id&#125;/users"</span>)</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">groupList</span><span class="params">(@Path(<span class="string">"id"</span>)</span> <span class="keyword">int</span> id, </span></span><br><span class="line"><span class="function">              @<span class="title">Query</span><span class="params">(<span class="string">"sort"</span>)</span> String sort, </span></span><br><span class="line"><span class="function">              Callback&lt;List&lt;User&gt;&gt; callback)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>组装出的url为<code>https://api.github.com/repos/id/users?sort=sort</code><br>当query参数为多个时，可使用<code>QueryMap</code>替代多个Query：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GET</span>(<span class="string">"group/&#123;id&#125;/users"</span>)</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">groupList</span><span class="params">(@Path(<span class="string">"id"</span>)</span> <span class="keyword">int</span> id, </span></span><br><span class="line"><span class="function">              @QueryMap Map&lt;String, String&gt; query, </span></span><br><span class="line"><span class="function">              Callback&lt;List&lt;User&gt;&gt; callback)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>等同于：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GET</span>(<span class="string">"group/&#123;id&#125;/users"</span>)</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">groupList</span><span class="params">(@Path(<span class="string">"id"</span>)</span> <span class="keyword">int</span> id, </span></span><br><span class="line"><span class="function">              @<span class="title">Query</span><span class="params">(<span class="string">"sort"</span>)</span> String sort, </span></span><br><span class="line"><span class="function">              @<span class="title">Query</span><span class="params">(<span class="string">"limit"</span>)</span> <span class="keyword">int</span> limit, </span></span><br><span class="line"><span class="function">              Callback&lt;List&lt;User&gt;&gt; callback)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>相应地，query参数要封装成Map传入：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">HashMap&lt;String, String&gt; query = <span class="keyword">new</span> HashMap();</span><br><span class="line">query.put(<span class="string">"sort"</span>, sort);</span><br><span class="line">query.put(<span class="string">"limit"</span>, limit);</span><br></pre></td></tr></table></figure>
+
+<p>组装出的url为<code>https://api.github.com/repos/id/users?sort=sort&amp;limit=limit</code></p>
+<h2 id="解析器"><a href="#解析器" class="headerlink" title="解析器"></a>解析器</h2><p>Wasp默认使用Gson解析网络请求返回数据。若要自定义解析器，传入自定义的解析器。自定义解析器需要实现<code>Parser</code>接口。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomParser</span> <span class="keyword">implements</span> <span class="title">Parser</span> </span>&#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">public</span> &lt;T&gt; <span class="function">T <span class="title">fromBody</span><span class="params">(String content, Type type)</span> <span class="keyword">throws</span> IOException </span>&#123; <span class="comment">// 结果解析</span></span><br><span class="line">    ...</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> String <span class="title">toBody</span><span class="params">(Object body)</span> </span>&#123; <span class="comment">// POST body组装</span></span><br><span class="line">    ...</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> String <span class="title">getSupportedContentType</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>创建Wasp时可设置自定义的解析器：</p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Wasp wasp = <span class="keyword">new</span> <span class="type">Wasp</span>.Builder(getContext())</span><br><span class="line">            .setEndpoint(<span class="string">"https://api.github.com"</span>)</span><br><span class="line">            .setParser(<span class="keyword">new</span> <span class="type">CustomParser</span>())</span><br><span class="line">            .build();</span><br></pre></td></tr></table></figure>
+
+<h2 id="POST请求"><a href="#POST请求" class="headerlink" title="POST请求"></a>POST请求</h2><p>HTTP POST请求需要处理HTTP body。<code>Parser.toBody()</code>可自定义body参数的处理。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@POST</span>(<span class="string">"/repos/&#123;user&#125;/&#123;repo&#125;"</span>)</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">addName</span><span class="params">(@Path(<span class="string">"user"</span>)</span> String user,</span></span><br><span class="line"><span class="function">             @<span class="title">Path</span><span class="params">(<span class="string">"repo"</span>)</span> String repo,</span></span><br><span class="line"><span class="function">             @Body String body,</span></span><br><span class="line"><span class="function">             Callback&lt;Repo&gt; callback</span></span><br><span class="line"><span class="function">)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>发送POST请求：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gitHubService.addName(user, repo, body, callback);</span><br></pre></td></tr></table></figure>
+
+<h2 id="同步-异步"><a href="#同步-异步" class="headerlink" title="同步/异步"></a>同步/异步</h2><p>异步请求使用网络库统一管理网络访问线程。若需要使用同步方式，网络请求在发起请求的线程里执行。请勿在Android主线程使用同步方式。<br>同步接口不传入回调，直接调用接口方法获取数据。请求接口声明：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GET</span>(<span class="string">"users/&#123;user&#125;/repos"</span>)</span><br><span class="line"><span class="function">List&lt;Repo&gt; <span class="title">listRepos</span><span class="params">(@Path(<span class="string">"user"</span>)</span> String user)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>发送请求：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Repo&gt; repos = gitHubService.listRepos(user);</span><br></pre></td></tr></table></figure>
+
+<h2 id="取消异步请求"><a href="#取消异步请求" class="headerlink" title="取消异步请求"></a>取消异步请求</h2><p>在Android界面销毁时可能需要取消已经发送但还未收到结果的网络请求。与异步接口的区别仅在于接口方法返回参数不同：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GET</span>(<span class="string">"users/&#123;user&#125;/repos"</span>)</span><br><span class="line"><span class="function">WaspRequest <span class="title">listRepos</span><span class="params">(@Path(<span class="string">"user"</span>)</span> String user, </span></span><br><span class="line"><span class="function">                      Callback&lt;List&lt;Repo&gt;&gt; callback)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>发起和取消请求：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 发起请求</span></span><br><span class="line">WaspRequest request = gitHubService.listRepos(user, callback);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 取消请求</span></span><br><span class="line">request.cancel();</span><br></pre></td></tr></table></figure>
+
+<h1 id="库维护地址"><a href="#库维护地址" class="headerlink" title="库维护地址"></a>库维护地址</h1><ul>
+<li><a href="https://github.com/SethFeng/wasp" target="_blank" rel="noopener">https://github.com/SethFeng/wasp</a></li>
+</ul>
+<h2 id="Wasp"><a href="#Wasp" class="headerlink" title="Wasp"></a>Wasp</h2><ul>
+<li>Volley + OkHttp</li>
+<li>友好的请求API，注解+接口</li>
+<li>强大的回调数据封装<br>仿Retrofit。<br><img src="https://github.com/orhanobut/wasp/raw/master/images/wasp-diagram.png" alt="架构图"><br>Image部分不使用，使用图片库处理。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">GitHubService</span> </span>&#123;</span><br><span class="line">    <span class="meta">@GET</span>(<span class="string">"users/&#123;user&#125;/repos"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">listRepos</span><span class="params">(@Path(<span class="string">"user"</span>)</span> String user, </span></span><br><span class="line"><span class="function">                  Callback&lt;List&lt;Repo&gt;&gt; callback)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Wasp wasp = <span class="keyword">new</span> Wasp.Builder(getContext())</span><br><span class="line">            .setEndpoint(<span class="string">"https://api.github.com"</span>)</span><br><span class="line">            .setParser(<span class="keyword">new</span> CustomParser())</span><br><span class="line">            .build();</span><br><span class="line">GitHubService gitHubService = wasp.create(GitHubService<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">gitHubService.listRepos(<span class="string">"sethfeng"</span>, <span class="keyword">new</span> Callback&lt;List&lt;Repo&gt;&gt;&#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onSuccess</span><span class="params">(WaspResponse response, List&lt;Repo&gt; repo)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onError</span><span class="params">(WaspError error)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>线程模型和缓存管理使用Volley。</p>
+<h3 id="接口如何实现发请求？"><a href="#接口如何实现发请求？" class="headerlink" title="接口如何实现发请求？"></a>接口如何实现发请求？</h3><p>Wasp#create():</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">T <span class="title">create</span><span class="params">(Class&lt;T&gt; service)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (service == <span class="keyword">null</span>) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException(<span class="string">"service param may not be null"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (!service.isInterface()) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Only interface type is supported"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  NetworkHandler handler = NetworkHandler.newInstance(service, builder);</span><br><span class="line">  <span class="keyword">return</span> (T) handler.getProxyClass();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>NetworkHandler#getProxyClass()</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Object <span class="title">getProxyClass</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  List&lt;Method&gt; methods = getMethods(service);</span><br><span class="line">  fillMethods(methods);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> Proxy.newProxyInstance(classLoader, <span class="keyword">new</span> Class[]&#123;service&#125;, <span class="keyword">this</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Java动态代理。<br>NetworkHandler#invoke():</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, <span class="keyword">final</span> Method method, <span class="keyword">final</span> Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">  <span class="keyword">final</span> MethodInfo methodInfo = methodInfoCache.get(method.getName());</span><br><span class="line"></span><br><span class="line">  <span class="keyword">switch</span> (methodInfo.getReturnType()) &#123;</span><br><span class="line">    <span class="keyword">case</span> VOID:</span><br><span class="line">      <span class="keyword">return</span> invokeCallbackRequest(proxy, method, args);</span><br><span class="line">    <span class="keyword">case</span> REQUEST:</span><br><span class="line">      <span class="keyword">return</span> invokeWaspRequest(proxy, method, args);</span><br><span class="line">    <span class="keyword">case</span> OBSERVABLE:</span><br><span class="line">      <span class="keyword">return</span> invokeObservable(method, args);</span><br><span class="line">    <span class="keyword">case</span> SYNC:</span><br><span class="line">      <span class="keyword">return</span> invokeSyncRequest(method, args);</span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(</span><br><span class="line">          <span class="string">"Return type should be void, WaspRequest, Observable or Object"</span></span><br><span class="line">      );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>根据不同的返回值类型，调用Volley的同步/异步请求接口，完成与Volley的对接。<br>Methods解析：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">fillMethods</span><span class="params">(List&lt;Method&gt; methods)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> (Method method : methods) &#123;</span><br><span class="line">    MethodInfo methodInfo = MethodInfo.newInstance(context, method);</span><br><span class="line">    methodInfoCache.put(method.getName(), methodInfo);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>MethodInfo#parseXXX()</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">GitHubService</span> </span>&#123;</span><br><span class="line">    <span class="meta">@GET</span>(<span class="string">"users/&#123;user&#125;/repos"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">listRepos</span><span class="params">(@Path(<span class="string">"user"</span>)</span> String user, </span></span><br><span class="line"><span class="function">                  Callback&lt;List&lt;Repo&gt;&gt; callback)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>parseMethodAnnotations method.getAnnotations() @GET<br>parseParamAnnotations method.getParameterAnnotations() @Path<br>parseReturnType method.getGenericReturnType() 异步方式解最后一个参数Callback</p>
+<p>Method.parse仅用于请求定义合法化检查，并没有用。真正把注解拼装请求在RequestCreator。<br>反射影响性能，应避免频繁调用create()，开发时可保持Service的单例。</p>
+<h3 id="网络回调数据解析Parser"><a href="#网络回调数据解析Parser" class="headerlink" title="网络回调数据解析Parser"></a>网络回调数据解析Parser</h3><p>VolleyRequest，继承Volley的Request</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> com.android.volley.<span class="function">Response <span class="title">parseNetworkResponse</span><span class="params">(NetworkResponse response)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">byte</span>[] data = response.data;</span><br><span class="line">    Object responseObject = Wasp.getParser().fromBody(data, responseObjectType,</span><br><span class="line">            HttpHeaderParser.parseCharset(response.headers, PROTOCOL_CHARSET));</span><br><span class="line">    ...</span><br><span class="line">  &#125;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>EMGsonParser</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">T <span class="title">fromBody</span><span class="params">(<span class="keyword">byte</span>[] content, Type type, String charset)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="string">"byte[]"</span>.equals(type.toString())) &#123;</span><br><span class="line">        <span class="keyword">return</span> (T) content;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (type == String<span class="class">.<span class="keyword">class</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> (T) <span class="keyword">new</span> String(content, charset);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Gson解析</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android/" rel="tag"># Android</a>
+              <a href="/tags/Network/" rel="tag"># Network</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/vim/" rel="prev" title="Vim Shortcuts">
+      <i class="fa fa-chevron-left"></i> Vim Shortcuts
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/library-retrofit/" rel="next" title="Retrofit学习笔记">
+      Retrofit学习笔记 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#介绍"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#API"><span class="nav-number">2.</span> <span class="nav-text">API</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#请求方法GET-POST"><span class="nav-number">2.1.</span> <span class="nav-text">请求方法GET/POST</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#URL组装"><span class="nav-number">2.2.</span> <span class="nav-text">URL组装</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#protocol和host"><span class="nav-number">2.2.1.</span> <span class="nav-text">- protocol和host</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#path"><span class="nav-number">2.2.2.</span> <span class="nav-text">- path</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#query"><span class="nav-number">2.2.3.</span> <span class="nav-text">- query</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解析器"><span class="nav-number">2.3.</span> <span class="nav-text">解析器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#POST请求"><span class="nav-number">2.4.</span> <span class="nav-text">POST请求</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#同步-异步"><span class="nav-number">2.5.</span> <span class="nav-text">同步/异步</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#取消异步请求"><span class="nav-number">2.6.</span> <span class="nav-text">取消异步请求</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#库维护地址"><span class="nav-number">3.</span> <span class="nav-text">库维护地址</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Wasp"><span class="nav-number">3.1.</span> <span class="nav-text">Wasp</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#接口如何实现发请求？"><span class="nav-number">3.1.1.</span> <span class="nav-text">接口如何实现发请求？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#网络回调数据解析Parser"><span class="nav-number">3.1.2.</span> <span class="nav-text">网络回调数据解析Parser</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">FengShenzhu</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">FengShenzhu</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

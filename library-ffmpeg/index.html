@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"78.141.198.216","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="官网：http://ffmpeg.orgWiki：http://trac.ffmpeg.org">
+<meta name="keywords" content="FFMPEG">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ffmpeg学习笔记">
+<meta property="og:url" content="http://78.141.198.216/blog/index.html/library-ffmpeg/index.html">
+<meta property="og:site_name" content="Find The Way">
+<meta property="og:description" content="官网：http://ffmpeg.orgWiki：http://trac.ffmpeg.org">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-09-10T09:28:52.795Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ffmpeg学习笔记">
+<meta name="twitter:description" content="官网：http://ffmpeg.orgWiki：http://trac.ffmpeg.org">
+
+<link rel="canonical" href="http://78.141.198.216/blog/index.html/library-ffmpeg/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>ffmpeg学习笔记 | Find The Way</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Find The Way</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">You cannot change the world, but you can change an app.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://78.141.198.216/blog/index.html/library-ffmpeg/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="FengShenzhu">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Find The Way">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ffmpeg学习笔记
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-04-06 13:21:11" itemprop="dateCreated datePublished" datetime="2016-04-06T13:21:11+08:00">2016-04-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-10 17:28:52" itemprop="dateModified" datetime="2020-09-10T17:28:52+08:00">2020-09-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/FFMPEG/" itemprop="url" rel="index"><span itemprop="name">FFMPEG</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>官网：<a href="http://ffmpeg.org" target="_blank" rel="noopener">http://ffmpeg.org</a><br>Wiki：<a href="http://trac.ffmpeg.org" target="_blank" rel="noopener">http://trac.ffmpeg.org</a></p>
+<a id="more"></a>
+
+<h1 id="编译安装"><a href="#编译安装" class="headerlink" title="编译安装"></a>编译安装</h1><p>git clone git://source.ffmpeg.org/ffmpeg.git ffmpeg<br>./configure<br>编译可选项 –<br>make<br>make install<br>PREFIX/bin ffmpeg   ffplay   ffprobe  ffserver<br>PREFIX/include libxxx/yyy.h<br>PREFIX/lib libxxx.a<br>PREFIX/share 系统相关东西，包括文档和示例</p>
+<p>libavcodec encoding/decoding library<br>libavfilter graph-based frame editing library<br>libavformat I/O and muxing/demuxing library<br>libavdevice special devices muxing/demuxing library<br>libavutil common utility library<br>libswresample audio resampling, format conversion and mixing<br>libpostproc post processing library<br>libswscale color conversion and scaling library</p>
+<p>libavutil 常规使用的工具类<br>libavcodec     encoding decoding<br>libavformat    muxing demuxing<br>libavdevice    抓取输入设备渲染到输出设备<br>libavfilter       音视频过滤<br>libswscale     scaling，像素转换<br>libswresample   audio采样、格式转变<br>libpostproc  video后处理<br>libavresample </p>
+<h1 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h1><p>ffmpeg   ffplay   ffprobe  ffserver</p>
+<ul>
+<li>ffmpeg   </li>
+<li>ffplay   </li>
+<li>ffprobe  </li>
+<li>ffserver<h2 id="ffmpeg"><a href="#ffmpeg" class="headerlink" title="ffmpeg"></a>ffmpeg</h2><a href="http://www.cnblogs.com/dwdxdy/p/3240167.html" target="_blank" rel="noopener">http://www.cnblogs.com/dwdxdy/p/3240167.html</a><br>从视频文件分离出视频和音频：<br>ffmpeg -i test.mp4 -vn -acodec copy -f adts test.mp3<br>ffmpeg -i test.mp4 -an -vcodec copy  test1.flv</li>
+</ul>
+<p>ffmpeg -i zhibo.flv -vn -acodec copy -f adts zhibo.mp3<br>ffmpeg -i zhibo.flv -an -vcodec copy -f flv zhibo1.flv</p>
+<p>常用参数说明：<br>主要参数：<br>-i 设定输入流<br>-f 设定输出格式<br>-ss 开始时间<br>视频参数：<br>-b 设定视频流量，默认为200Kbit/s<br>-r 设定帧速率，默认为25<br>-s 设定画面的宽与高<br>-aspect 设定画面的比例<br>-vn 不处理视频<br>-vcodec 设定视频编解码器，未设定时则使用与输入流相同的编解码器<br>音频参数：<br>-ar 设定采样率<br>-ac 设定声音的Channel数<br>-acodec 设定声音编解码器，未设定时则使用与输入流相同的编解码器<br>-an 不处理音频</p>
+<p>只采集音频：<br>ffmpeg -f avfoundation -vn -i “1:0” -acodec aac ~/Downloads/a.aac</p>
+<p>采集PCM音频：<br>ffmpeg -f avfoundation -vn -i “1:0” -acodec pcm_f32le ~/Downloads/a.wav</p>
+<h1 id="编程"><a href="#编程" class="headerlink" title="编程"></a>编程</h1><p><a href="https://www.ffmpeg.org/doxygen/trunk/index.html" target="_blank" rel="noopener">https://www.ffmpeg.org/doxygen/trunk/index.html</a></p>
+<p>AVCodecContext 音频</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* audio only */</span></span><br><span class="line"><span class="keyword">int</span> sample_rate; <span class="comment">///&lt; samples per second</span></span><br><span class="line"><span class="keyword">int</span> channels;    <span class="comment">///&lt; number of audio channels</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * audio sample format</span></span><br><span class="line"><span class="comment"> * - encoding: Set by user.</span></span><br><span class="line"><span class="comment"> * - decoding: Set by libavcodec.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">enum</span> <span class="built_in">AVSampleFormat</span> sample_fmt;  <span class="comment">///&lt; sample format</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* The following data should not be initialized. */</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Number of samples per channel in an audio frame.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * - encoding: set by libavcodec in avcodec_open2(). Each submitted frame</span></span><br><span class="line"><span class="comment"> *   except the last must contain exactly frame_size samples per channel.</span></span><br><span class="line"><span class="comment"> *   May be 0 when the codec has CODEC_CAP_VARIABLE_FRAME_SIZE set, then the</span></span><br><span class="line"><span class="comment"> *   frame size is not restricted.</span></span><br><span class="line"><span class="comment"> * - decoding: may be set by some decoders to indicate constant frame size</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">int</span> frame_size;</span><br></pre></td></tr></table></figure>
+
+<p>AVFrame 音频</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>pointer to </span>the<span class="markdown"> picture/channel planes.</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>This might be different from </span>the<span class="markdown"> first allocated byte</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     *</span></span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>Some decoders access areas outside 0,0 - width,height, please</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>see avcodec<span class="emphasis">_align_</span>dimensions2(). Some filters and swscale can read</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>up to 16 bytes beyond </span>the<span class="markdown"> planes, if these filters </span>are<span class="markdown"> to be used,</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>then 16 extra bytes must be allocated.</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    uint8_t *data[AV_NUM_DATA_POINTERS];</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>number of audio samples (per channel) described by this frame</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    <span class="built_in">int</span> nb_samples;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>format of </span>the<span class="markdown"> frame, -1 if unknown or unset</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>Values correspond to enum AVPixelFormat for video frames,</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>enum AVSampleFormat for audio)</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    <span class="built_in">int</span> format;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>Presentation timestamp in time_base units (time when frame </span>should<span class="markdown"> be shown to user).</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    int64_t pts;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>PTS copied from </span>the<span class="markdown"> AVPacket that was decoded to produce this frame.</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    int64_t pkt_pts;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>DTS copied from </span>the<span class="markdown"> AVPacket that triggered returning this frame. (if frame threading </span>isn't<span class="markdown"> used)</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>This is also </span>the<span class="markdown"> Presentation time of this AVFrame calculated from</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>only AVPacket.dts values without pts values.</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    int64_t pkt_dts;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>Sample rate of </span>the<span class="markdown"> audio data.</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    <span class="built_in">int</span> sample_rate;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>number of audio channels, only used for audio.</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>Code outside libavcodec </span>should<span class="markdown"> access this field using:</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>av<span class="emphasis">_frame_</span>get_channels(frame)</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>- encoding: unused</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>- decoding: Read by user.</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    <span class="built_in">int</span> channels;</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/FFMPEG/" rel="tag"># FFMPEG</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/library-fidu/" rel="prev" title="Android文件上传与下载">
+      <i class="fa fa-chevron-left"></i> Android文件上传与下载
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/weex-refresh-and-loadmore/" rel="next" title="Weex下拉刷新和加载更多">
+      Weex下拉刷新和加载更多 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#编译安装"><span class="nav-number">1.</span> <span class="nav-text">编译安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#命令"><span class="nav-number">2.</span> <span class="nav-text">命令</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ffmpeg"><span class="nav-number">2.1.</span> <span class="nav-text">ffmpeg</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编程"><span class="nav-number">3.</span> <span class="nav-text">编程</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">FengShenzhu</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">FengShenzhu</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

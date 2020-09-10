@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"78.141.198.216","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="线程模型ConnectionPool注意OkHttp的线程模型  不在主线程调用OkHttp的同步请求 主线程处理OkHttp异步请求回调可能碰到坑若Response.body().bytes()第一次触发的是主线程，Util.closeQuietly(source)会被调用去操作网络。">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OkHttp">
+<meta property="og:url" content="http://78.141.198.216/blog/index.html/library-okhttp/index.html">
+<meta property="og:site_name" content="Find The Way">
+<meta property="og:description" content="线程模型ConnectionPool注意OkHttp的线程模型  不在主线程调用OkHttp的同步请求 主线程处理OkHttp异步请求回调可能碰到坑若Response.body().bytes()第一次触发的是主线程，Util.closeQuietly(source)会被调用去操作网络。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://frodoking.github.io/img/android/okhttp_instructure.png">
+<meta property="og:image" content="http://frodoking.github.io/img/android/okhttp_request_process.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/wiki/square/okhttp/interceptors@2x.png">
+<meta property="og:image" content="http://frodoking.github.io/img/android/okhttp_okhttpclient_class.png">
+<meta property="og:updated_time" content="2020-09-10T09:29:38.016Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OkHttp">
+<meta name="twitter:description" content="线程模型ConnectionPool注意OkHttp的线程模型  不在主线程调用OkHttp的同步请求 主线程处理OkHttp异步请求回调可能碰到坑若Response.body().bytes()第一次触发的是主线程，Util.closeQuietly(source)会被调用去操作网络。">
+<meta name="twitter:image" content="http://frodoking.github.io/img/android/okhttp_instructure.png">
+
+<link rel="canonical" href="http://78.141.198.216/blog/index.html/library-okhttp/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>OkHttp | Find The Way</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Find The Way</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">You cannot change the world, but you can change an app.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://78.141.198.216/blog/index.html/library-okhttp/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="FengShenzhu">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Find The Way">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          OkHttp
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-02-02 10:25:14" itemprop="dateCreated datePublished" datetime="2016-02-02T10:25:14+08:00">2016-02-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-10 17:29:38" itemprop="dateModified" datetime="2020-09-10T17:29:38+08:00">2020-09-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="线程模型"><a href="#线程模型" class="headerlink" title="线程模型"></a>线程模型</h3><p>ConnectionPool<br>注意OkHttp的线程模型</p>
+<ul>
+<li>不在主线程调用OkHttp的同步请求</li>
+<li>主线程处理OkHttp异步请求回调可能碰到坑<br>若<code>Response.body().bytes()</code>第一次触发的是主线程，<code>Util.closeQuietly(source)</code>会被调用去操作网络。</li>
+</ul>
+<a id="more"></a>
+
+<h3 id="缓存模型"><a href="#缓存模型" class="headerlink" title="缓存模型"></a>缓存模型</h3><p>关于<code>OkHttpClient#clone()</code><br>new Call()的时候没必要clone OkHttpClient，因为Call()构造函数也会<code>new OkHttpClient()</code></p>
+<h3 id="异步请求回调"><a href="#异步请求回调" class="headerlink" title="异步请求回调"></a>异步请求回调</h3><ul>
+<li>Callback<br><code>onResponse</code>在请求的头部回来时就被调用了。如果请求回复的body比较耗时（如下载文件），通过<code>response.body().byteStream()</code>读取完流/通过<code>response.body().byte()</code>，body下载完成，请求才算完成，才能给UI成功的回调。</li>
+</ul>
+<p>TextView setText不可在非UI线程调用<br>ProgressBar setProgress可在非UI线程调用，为毛？</p>
+<h3 id="关于文件下载-上传进度"><a href="#关于文件下载-上传进度" class="headerlink" title="关于文件下载/上传进度"></a>关于文件下载/上传进度</h3><ul>
+<li>下载进度<br>可以通过在Callback的onResponse里，通过<code>response.body().byteStream()</code>获取流，通过读取流发出进度变化消息。</li>
+<li>上传进度</li>
+</ul>
+<h1 id="网络库解析OkHttp-Volley-Wasp"><a href="#网络库解析OkHttp-Volley-Wasp" class="headerlink" title="网络库解析OkHttp/Volley/Wasp"></a>网络库解析OkHttp/Volley/Wasp</h1><h2 id="OkHttp"><a href="#OkHttp" class="headerlink" title="OkHttp"></a>OkHttp</h2><p>比一般HTTP库做的更多：</p>
+<ul>
+<li>支持HTTP/2，紧跟时代步伐。</li>
+<li>连接池管理，默认每个Host同时支持5个连接，同时支持64个请求。</li>
+<li>支持异步请求、支持并发请求。Android不允许在主线程操作网络请求。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">OkHttpClient client = <span class="keyword">new</span> OkHttpClient();</span><br><span class="line">Request request = <span class="keyword">new</span> Request.Builder()</span><br><span class="line">                .url(<span class="string">"http://sethfeng.github.io/index.html"</span>)</span><br><span class="line">                .build();</span><br><span class="line">Call call = client.newCall(request);</span><br><span class="line"><span class="comment">// 同步</span></span><br><span class="line">Response response = call.excute();</span><br><span class="line"><span class="comment">// 异步</span></span><br><span class="line">call.enqueue(<span class="keyword">new</span> Callback() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFailure</span><span class="params">(Request request, IOException e)</span> </span>&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResponse</span><span class="params">(Response response)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://frodoking.github.io/img/android/okhttp_instructure.png" alt="结构"></p>
+<h3 id="线程模型-1"><a href="#线程模型-1" class="headerlink" title="线程模型"></a>线程模型</h3><p>异步请求分发器–Dispatcher：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** Ready calls in the order they'll be run. */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Deque&lt;AsyncCall&gt; readyCalls = <span class="keyword">new</span> ArrayDeque&lt;&gt;();</span><br><span class="line"></span><br><span class="line"><span class="comment">/** Running calls. Includes canceled calls that haven't finished yet. */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Deque&lt;AsyncCall&gt; runningCalls = <span class="keyword">new</span> ArrayDeque&lt;&gt;();</span><br><span class="line"></span><br><span class="line"><span class="comment">/** In-flight synchronous calls. Includes canceled calls that haven't finished yet. */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Deque&lt;Call&gt; executedCalls = <span class="keyword">new</span> ArrayDeque&lt;&gt;();</span><br><span class="line"></span><br><span class="line">ExecutorService executorService = <span class="keyword">new</span> ThreadPoolExecutor(<span class="number">0</span>, Integer.MAX_VALUE, <span class="number">60</span>, TimeUnit.SECONDS, <span class="keyword">new</span> SynchronousQueue&lt;Runnable&gt;(), Util.threadFactory(<span class="string">"OkHttp Dispatcher"</span>, <span class="keyword">false</span>));</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">promoteCalls</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (runningCalls.size() &gt;= maxRequests) <span class="keyword">return</span>; <span class="comment">// Already running max capacity.</span></span><br><span class="line">    <span class="keyword">if</span> (readyCalls.isEmpty()) <span class="keyword">return</span>; <span class="comment">// No ready calls to promote.</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (Iterator&lt;AsyncCall&gt; i = readyCalls.iterator(); i.hasNext(); ) &#123;</span><br><span class="line">      AsyncCall call = i.next();</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (runningCallsForHost(call) &lt; maxRequestsPerHost) &#123;</span><br><span class="line">        i.remove();</span><br><span class="line">        runningCalls.add(call);</span><br><span class="line">        getExecutorService().execute(call);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (runningCalls.size() &gt;= maxRequests) <span class="keyword">return</span>; <span class="comment">// Reached max capacity.</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>readyCalls：异步请求等待队列，enqueue()时可能添加，promoteCalls()时可能转移到runningCalls。</li>
+<li>runningCalls：异步请求队列，enqueue()和promoteCalls()时可能添加，finish()移除，并触发promoteCalls()。</li>
+<li>executedCalls：同步请求队列，excute()添加，finish()移除。</li>
+</ul>
+<p>finish()在finally{}里，最终都会调用到（最终都会从队列移除）。<br>求证：readyCalls cancel()并不会立即收到回调，要等执行队列调度执行才会，等得太久了吧？</p>
+<p>注意Callback里回调方法执行的线程是网络请求所在线程，使用者在自行实现的回调函数里不能进行UI操作。</p>
+<h3 id="请求流程"><a href="#请求流程" class="headerlink" title="请求流程"></a>请求流程</h3><ul>
+<li>Call/AsynCall#execute()</li>
+<li>Call#getResponseWithInterceptorChain()</li>
+<li>Call.getResponse()</li>
+<li>HttpEngine<br>engine.sendRequest()<br>engine().readResponse()<br>engine.readNetworkResponse<br>transport.readResponseHeaders()<br>transport.openResponseBody<br>[ retryEngine ]</li>
+<li>return engine.getResponse()</li>
+</ul>
+<p>说好的Socket呢？<br>发起请求是在Connection.connect()这里，实际执行是在HttpConnection.flush()这里进行一个刷入。这里重点应该关注一下sink和source，他们创建的默认方式都是依托于同一个socket：<br>this.source = Okio.buffer(Okio.source(socket));<br>this.sink = Okio.buffer(Okio.sink(socket));<br>如果再进一步看一下io的源码就能看到：<br>Source source = source((InputStream)socket.getInputStream(), (Timeout)timeout);<br>Sink sink = sink((OutputStream)socket.getOutputStream(), (Timeout)timeout);</p>
+<p><img src="http://frodoking.github.io/img/android/okhttp_request_process.png" alt="请求流程图"></p>
+<h3 id="拦截器链"><a href="#拦截器链" class="headerlink" title="拦截器链"></a>拦截器链</h3><p>根据调用时机的不同，OkHttp提供两种拦截器，以供使用“切面”执行自定义代码。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">client.interceptors().add(xxApplicationInterceptor);</span><br><span class="line">client.networkInterceptors().add(xxNetworkInterceptor);</span><br></pre></td></tr></table></figure>
+
+<p><code>ApplicationInterceptorChain</code>用于Request发出前拦截，<code>NetworkInterceptorChain</code>用于Request发出后拦截。<br>从使用场景来看，ApplicationInterceptorChain适用于对请求信息进行打印、修改等操作；NetworkInterceptorChain适用于操作Response的接收过程和结果。<br><img src="https://raw.githubusercontent.com/wiki/square/okhttp/interceptors@2x.png" alt="Interceptors"><br>请求过程中的调用时机：</p>
+<ul>
+<li><code>Call#getResponseWithInterceptorChain()</code>调用到<code>Call.ApplicationInterceptorChain</code>。</li>
+<li><code>engine().readResponse()</code>调用到<code>HttpEngine.NetworkInterceptorChain</code>。<code>engine().readResponse()</code>在<code>engine.sendRequest()</code>之后，此时请求已发出。<br>关键点–<code>Chain#proceed()</code>：<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Response <span class="title">proceed</span><span class="params">(Request request)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">if</span> (chain has next interceptor) response = nextChainInterceptor.proceed(request);</span><br><span class="line">    <span class="keyword">else</span> response = engine.readNetworkResponse();</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">return</span> response;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="缓存管理"><a href="#缓存管理" class="headerlink" title="缓存管理"></a>缓存管理</h3><p>默认不开启缓存。<br>开启缓存：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">client.setCache(<span class="keyword">new</span> Cache(<span class="keyword">new</span> File(mContext.getCacheDir() + <span class="string">"/okhttp"</span>), <span class="number">5</span> * <span class="number">1024</span> * <span class="number">1024</span>));</span><br></pre></td></tr></table></figure>
+
+<p>缓存策略：DiskLruCache</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">root<span class="variable">@vbox86p</span><span class="symbol">:/data/data/com</span>.feng.androidnetlib/cache/okhttp <span class="comment"># ls</span></span><br><span class="line"><span class="number">2</span>dc5dc93a8774a576e03c0494be88a7e.0</span><br><span class="line"><span class="number">2</span>dc5dc93a8774a576e03c0494be88a7e.<span class="number">1</span></span><br><span class="line">journal</span><br></pre></td></tr></table></figure>
+
+<p>responseCache.get(request)<br>命中缓存不发请求。</p>
+<p>engine.sendRequest()<br>缓存命中直接给userResponse赋值，readResponse()时发现userResponse不为空，直接返回。<br>engine().readResponse() – responseCache.put(response)</p>
+<h3 id="连接机制"><a href="#连接机制" class="headerlink" title="连接机制"></a>连接机制</h3><p>HttpEngine Connector ConnectionPool Route Transport HttpConnection</p>
+<p>连接池可以有多少个连接器？一个连接器能同时发送多少个请求？一个新的请求对应的连接器满负荷状态时，会缓存到连接器还是会新开一个连接器？</p>
+<p> If your service has multiple IP addresses OkHttp will attempt alternate addresses if the first connect fails.<br> Routes使用到项目的可能性（自动更换地址）<br>Routes是自动的么？能手动设置么？</p>
+<p><img src="http://frodoking.github.io/img/android/okhttp_okhttpclient_class.png" alt="详细类关系图"></p>
+<h3 id="Tips"><a href="#Tips" class="headerlink" title="- Tips"></a>- Tips</h3><ul>
+<li>但是如果请求/返回Body太大（超过1MB），如上传/下载文件，应避免把所有数据都读取到内存，建议使用流方式处理。</li>
+<li>同一个App应只调用一次<code>new OkHttpClient()</code>。多次new会产生多个线程池。</li>
+<li>单个请求的个性化参数设置：<br>client = mClient.clone();<br>对此client进行特殊参数设置。此client与默认OkHttpClient共用一个线程池。</li>
+</ul>
+<h2 id="Volley"><a href="#Volley" class="headerlink" title="Volley"></a>Volley</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">RequestQueue requestQueue = Volley.newRequestQueue(mContext);</span><br><span class="line">Request request = requestQueue.add(<span class="keyword">new</span> StringRequest(<span class="string">"http://sethfeng.github.io/index.html"</span>,</span><br><span class="line">    <span class="keyword">new</span> Response.Listener&lt;String&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResponse</span><span class="params">(String response)</span> </span>&#123;</span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="keyword">new</span> Response.ErrorListener() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onErrorResponse</span><span class="params">(VolleyError error)</span> </span>&#123;</span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">&#125;));</span><br></pre></td></tr></table></figure>
+
+<p>HTTP库选择：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> RequestQueue <span class="title">newRequestQueue</span><span class="params">(Context context, HttpStack stack)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (stack == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= <span class="number">9</span>) &#123;</span><br><span class="line">                stack = <span class="keyword">new</span> HurlStack();</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                stack = <span class="keyword">new</span> HttpClientStack(AndroidHttpClient.newInstance(userAgent));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可让OkHttp实现HttpStack，让Volley搭配OkHttp：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">OkHttpStack</span> <span class="keyword">implements</span> <span class="title">HttpStack</span> </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> OkHttpClient client;</span><br><span class="line">  OkHttpStack(OkHttpClient client) &#123;</span><br><span class="line">    <span class="keyword">this</span>.client = client;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> HttpResponse <span class="title">performRequest</span><span class="params">(Request&lt;?&gt; request, Map&lt;String, String&gt; additionalHeaders)</span></span></span><br><span class="line"><span class="function">      <span class="keyword">throws</span> IOException, AuthFailureError </span>&#123;</span><br><span class="line">    <span class="comment">// Volley request -&gt; OkHttp request</span></span><br><span class="line">    ...</span><br><span class="line">    Call okHttpCall = client.newCall(okHttpRequest);</span><br><span class="line">    Response okHttpResponse = okHttpCall.execute();</span><br><span class="line">    <span class="comment">// OkHttp response -&gt; Volley response</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">return</span> response;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="线程模型-2"><a href="#线程模型-2" class="headerlink" title="线程模型"></a>线程模型</h3><p>同步/异步 RequestFuture</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> PriorityBlockingQueue&lt;Request&lt;?&gt;&gt; mCacheQueue = <span class="keyword">new</span> PriorityBlockingQueue&lt;Request&lt;?&gt;&gt;();</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> PriorityBlockingQueue&lt;Request&lt;?&gt;&gt; mNetworkQueue = <span class="keyword">new</span> PriorityBlockingQueue&lt;Request&lt;?&gt;&gt;();</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> NetworkDispatcher[] mDispatchers;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> CacheDispatcher mCacheDispatcher;</span><br></pre></td></tr></table></figure>
+
+<p>NetworkDispatcher 4个，处理网络请求<br>CacheDispatcher 1个，Cache的两层含义：从缓存取/请求等待队列<br>每个Request有一个全局自增的sequence</p>
+<p>RequestQueue#add():<br>mCacheQueue.add(request);</p>
+<p>CacheDispather#run():<br>request = mCacheQueue.take(); // 队列中有就取一个，没有就一直等待<br>mNetworkQueue.put(request); // 是否执行受Cachey命中/过期影响</p>
+<p>4个NetworkDispatcher#run():<br>request = mQueue.take(); // mNetworkQueue, 队列中有就取一个，没有就一直等待<br>NetworkResponse networkResponse = mNetwork.performRequest(request);</p>
+<p>插曲：如何实现重复请求过滤？<br>private final Map&lt;String, Queue&lt;Request<?>>> mWaitingRequests = new HashMap<string, queue<request<?>&gt;&gt;();<br>RequestQueue#add(Request):<br>第一次请求：<br>mWaitingRequests.put(cacheKey, null); // 添加到mCacheQueue<br>第二次请求：<br>mWaitingRequests.put(cacheKey, stagedRequests); // 不添加到mCacheQueue<br>第二次请求添加到mCacheQueue:<br>RequestQueue#finish(Request);<br>waitingRequests = mWaitingRequests.remove(cacheKey);<br>mCacheQueue.addAll(waitingRequests);</string,></p>
+<h3 id="缓存管理-1"><a href="#缓存管理-1" class="headerlink" title="缓存管理"></a>缓存管理</h3><p>一个Request对应一个文本文件缓存。<br>默认启用缓存，缓存大小5M，DiskBasedCache，顺序：无序(HashMap)</p>
+<p>If-Modified-Since: Tue, 15 Mar 2016 12:58:50 GMT+00:00</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root<span class="variable">@vbox86p</span><span class="symbol">:/data/data/com</span>.feng.androidnetlib/cache/volley <span class="comment"># ls</span></span><br><span class="line"><span class="number">-1161567360-1808666461</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="网络回调"><a href="#网络回调" class="headerlink" title="网络回调"></a>网络回调</h3><p>Request构造函数自带Listener和ErrorListener，回调函数分别由Request的deliverResponse和deliverError触发。<br>deliverResponse/deliverError由ResponseDelivery触发。<br>ResponseDelivery.ResponseDeliveryRunnable使用Handler处理回调，Looper为主线程的Looper，回调函数在主线程执行。<br>注意不要在回调函数里处理耗时操作。   </p>
+<h3 id="Callback-onResponse-注意"><a href="#Callback-onResponse-注意" class="headerlink" title="Callback.onResponse()注意"></a>Callback.onResponse()注意</h3><blockquote>
+<p>Note that transport-layer success (receiving a HTTP response code, headers and body) does not necessarily indicate application-layer success: response may still indicate an unhappy HTTP response code like 404 or 500.</p>
+</blockquote>
+<p>传输层的成功并不表示应用层的成功。在应用过程中，服务器返回404或者500等非成功状态码，可能需要回调失败。需要区别时，只需在onResponse()里判断response.isSuccessful()。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2015/0106/2275.html" target="_blank" rel="noopener">OkHttp使用教程</a></p>
+<p><a href="http://frodoking.github.io/2015/03/12/android-okhttp/" target="_blank" rel="noopener">OKHttp源码解析</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android/" rel="tag"># Android</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/library-retrofit/" rel="prev" title="Retrofit学习笔记">
+      <i class="fa fa-chevron-left"></i> Retrofit学习笔记
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/library-fidu/" rel="next" title="Android文件上传与下载">
+      Android文件上传与下载 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#线程模型"><span class="nav-number">1.</span> <span class="nav-text">线程模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缓存模型"><span class="nav-number">2.</span> <span class="nav-text">缓存模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#异步请求回调"><span class="nav-number">3.</span> <span class="nav-text">异步请求回调</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关于文件下载-上传进度"><span class="nav-number">4.</span> <span class="nav-text">关于文件下载/上传进度</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#网络库解析OkHttp-Volley-Wasp"><span class="nav-number"></span> <span class="nav-text">网络库解析OkHttp/Volley/Wasp</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#OkHttp"><span class="nav-number"></span> <span class="nav-text">OkHttp</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#线程模型-1"><span class="nav-number">1.</span> <span class="nav-text">线程模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#请求流程"><span class="nav-number">2.</span> <span class="nav-text">请求流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#拦截器链"><span class="nav-number">3.</span> <span class="nav-text">拦截器链</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缓存管理"><span class="nav-number">4.</span> <span class="nav-text">缓存管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#连接机制"><span class="nav-number">5.</span> <span class="nav-text">连接机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tips"><span class="nav-number">6.</span> <span class="nav-text">- Tips</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Volley"><span class="nav-number"></span> <span class="nav-text">Volley</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#线程模型-2"><span class="nav-number">1.</span> <span class="nav-text">线程模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缓存管理-1"><span class="nav-number">2.</span> <span class="nav-text">缓存管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#网络回调"><span class="nav-number">3.</span> <span class="nav-text">网络回调</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Callback-onResponse-注意"><span class="nav-number">4.</span> <span class="nav-text">Callback.onResponse()注意</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number"></span> <span class="nav-text">参考</span></a></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">FengShenzhu</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">FengShenzhu</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

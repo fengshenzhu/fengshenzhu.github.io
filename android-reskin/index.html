@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"78.141.198.216","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="换肤理论基础：View的创建过程。从xml到View：Activity： 12345public void setContentView(int layoutResID) &amp;#123;    ...    mLayoutInflater.inflate(layoutResID, mContentParent);    ...&amp;#125;">
+<meta name="keywords" content="Android,换肤">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android换肤理论分析">
+<meta property="og:url" content="http://78.141.198.216/blog/index.html/android-reskin/index.html">
+<meta property="og:site_name" content="Find The Way">
+<meta property="og:description" content="换肤理论基础：View的创建过程。从xml到View：Activity： 12345public void setContentView(int layoutResID) &amp;#123;    ...    mLayoutInflater.inflate(layoutResID, mContentParent);    ...&amp;#125;">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-09-10T09:26:14.303Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android换肤理论分析">
+<meta name="twitter:description" content="换肤理论基础：View的创建过程。从xml到View：Activity： 12345public void setContentView(int layoutResID) &amp;#123;    ...    mLayoutInflater.inflate(layoutResID, mContentParent);    ...&amp;#125;">
+
+<link rel="canonical" href="http://78.141.198.216/blog/index.html/android-reskin/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>Android换肤理论分析 | Find The Way</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Find The Way</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">You cannot change the world, but you can change an app.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://78.141.198.216/blog/index.html/android-reskin/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="FengShenzhu">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Find The Way">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Android换肤理论分析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2015-12-22 20:53:33" itemprop="dateCreated datePublished" datetime="2015-12-22T20:53:33+08:00">2015-12-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-10 17:26:14" itemprop="dateModified" datetime="2020-09-10T17:26:14+08:00">2020-09-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="换肤理论基础：View的创建过程。"><a href="#换肤理论基础：View的创建过程。" class="headerlink" title="换肤理论基础：View的创建过程。"></a>换肤理论基础：View的创建过程。</h1><h2 id="从xml到View："><a href="#从xml到View：" class="headerlink" title="从xml到View："></a>从xml到View：</h2><p>Activity：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setContentView</span><span class="params">(<span class="keyword">int</span> layoutResID)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    mLayoutInflater.inflate(layoutResID, mContentParent);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+<p>LayoutInflater:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> View <span class="title">inflate</span><span class="params">(@LayoutRes <span class="keyword">int</span> resource, @Nullable ViewGroup root, <span class="keyword">boolean</span> attachToRoot)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> Resources res = getContext().getResources();</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">final</span> XmlResourceParser parser = res.getLayout(resource);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> inflate(parser, root, attachToRoot);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        parser.close();</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> View <span class="title">inflate</span><span class="params">(XmlPullParser parser, @Nullable ViewGroup root, <span class="keyword">boolean</span> attachToRoot)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">final</span> View temp = createViewFromTag(root, name, inflaterContext, attrs); <span class="comment">// 创建用户xml根布局View</span></span><br><span class="line">    ...</span><br><span class="line">    rInflateChildren(parser, temp, attrs, <span class="keyword">true</span>); <span class="comment">// 创建用户xml根布局的children</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// rInflateChildren调用到</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">rInflate</span><span class="params">(XmlPullParser parser, View parent, Context context,</span></span></span><br><span class="line"><span class="function"><span class="params">            AttributeSet attrs, <span class="keyword">boolean</span> finishInflate)</span> <span class="keyword">throws</span> XmlPullParserException, IOException </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">final</span> View view = createViewFromTag(parent, name, context, attrs);</span><br><span class="line">    <span class="keyword">final</span> ViewGroup viewGroup = (ViewGroup) parent;</span><br><span class="line">    <span class="keyword">final</span> ViewGroup.LayoutParams params = viewGroup.generateLayoutParams(attrs);</span><br><span class="line">    rInflateChildren(parser, view, attrs, <span class="keyword">true</span>);</span><br><span class="line">    viewGroup.addView(view, params);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>都指向了LayoutInflater.createViewFromTag()</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">View <span class="title">createViewFromTag</span><span class="params">(View parent, String name, Context context, AttributeSet attrs,</span></span></span><br><span class="line"><span class="function"><span class="params">            <span class="keyword">boolean</span> ignoreThemeAttr)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    View view;</span><br><span class="line">    <span class="keyword">if</span> (mFactory2 != <span class="keyword">null</span>) &#123;</span><br><span class="line">        view = mFactory2.onCreateView(parent, name, context, attrs);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (mFactory != <span class="keyword">null</span>) &#123;</span><br><span class="line">        view = mFactory.onCreateView(name, context, attrs);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        view = <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (view == <span class="keyword">null</span> &amp;&amp; mPrivateFactory != <span class="keyword">null</span>) &#123;</span><br><span class="line">        view = mPrivateFactory.onCreateView(parent, name, context, attrs);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (view == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">final</span> Object lastContext = mConstructorArgs[<span class="number">0</span>];</span><br><span class="line">        mConstructorArgs[<span class="number">0</span>] = context;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (-<span class="number">1</span> == name.indexOf(<span class="string">'.'</span>)) &#123; <span class="comment">// 系统View，需要补全前缀，之后调用如同下面的createView()</span></span><br><span class="line">                view = onCreateView(parent, name, attrs);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                view = createView(name, <span class="keyword">null</span>, attrs);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            mConstructorArgs[<span class="number">0</span>] = lastContext;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> view;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="xml布局文件中简写的系统View需要补全前缀"><a href="#xml布局文件中简写的系统View需要补全前缀" class="headerlink" title="xml布局文件中简写的系统View需要补全前缀"></a>xml布局文件中简写的系统View需要补全前缀</h4><pre><code>布局的LayoutInflater类型实际为PhoneLayoutInflater。
+系统View自动添加前缀列表，PhoneLayoutInflater.onCreateView()
+    android.widget.
+    android.webkit.
+    android.app.
+添加前缀使用反射尝试找到构造函数来构造View对象，失败了就换个前缀再次尝试下一个前缀。遍历完还是失败，调用super LayoutInflater的方法，添加前缀&quot;android.view.&quot;。
+如：LinearLayout补全为android.widget.LinearLayout。</code></pre><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> Factory mFactory;</span><br><span class="line"><span class="keyword">private</span> Factory2 mFactory2;</span><br><span class="line"><span class="keyword">private</span> Factory2 mPrivateFactory;</span><br></pre></td></tr></table></figure>
+
+<h4 id="LayoutInflater构造View可能的选择："><a href="#LayoutInflater构造View可能的选择：" class="headerlink" title="LayoutInflater构造View可能的选择："></a>LayoutInflater构造View可能的选择：</h4><pre><code>- mFactory2.onCreateView()
+- mFactory.onCreateView()
+- mPrivateFactory.onCreateView()，由于Activtiy implements LayoutInflater.Factory2，会调用到Activity的onCreateView() 
+- LayoutInflater.createView(String name, String prefix, AttributeSet attrs)</code></pre><h2 id="实例化View：LayoutInflater-createView"><a href="#实例化View：LayoutInflater-createView" class="headerlink" title="实例化View：LayoutInflater.createView()"></a>实例化View：LayoutInflater.createView()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> View <span class="title">createView</span><span class="params">(String name, String prefix, AttributeSet attrs)</span></span></span><br><span class="line"><span class="function">            <span class="keyword">throws</span> ClassNotFoundException, InflateException </span>&#123;</span><br><span class="line">    Constructor&lt;? extends View&gt; constructor = sConstructorMap.get(name);</span><br><span class="line">    Class&lt;? extends View&gt; clazz = <span class="keyword">null</span>;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">if</span> (constructor == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// Class not found in the cache, see if it's real, and try to add it</span></span><br><span class="line">        clazz = mContext.getClassLoader().loadClass(</span><br><span class="line">                prefix != <span class="keyword">null</span> ? (prefix + name) : name).asSubclass(View<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (mFilter != <span class="keyword">null</span> &amp;&amp; clazz != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">boolean</span> allowed = mFilter.onLoadClass(clazz);</span><br><span class="line">            <span class="keyword">if</span> (!allowed) &#123;</span><br><span class="line">                failNotAllowed(name, prefix, attrs);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        constructor = clazz.getConstructor(mConstructorSignature);</span><br><span class="line">        constructor.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">        sConstructorMap.put(name, constructor); <span class="comment">// sConstructorMap缓存使用过的构造函数，减少调用ClassLoader的次数</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Object[] args = mConstructorArgs;</span><br><span class="line">    args[<span class="number">1</span>] = attrs;</span><br><span class="line">    <span class="keyword">final</span> View view = constructor.newInstance(args);</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">return</span> view;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>View的对象实例化通过反射调用其构造函数：View(Context context, @Nullable AttributeSet attrs)。<br>自此，View的Java对象才创建出来。</p>
+<p>如果到这里还没有修改记录View的属性，生米已成熟饭，晚矣!</p>
+<h4 id="DecorView的初始化-PhoneWindow-mDecorView"><a href="#DecorView的初始化-PhoneWindow-mDecorView" class="headerlink" title="DecorView的初始化 PhoneWindow.mDecorView"></a>DecorView的初始化 PhoneWindow.mDecorView</h4><p>PhoneWindow</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">installDecor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (mDecor == <span class="keyword">null</span>) &#123;</span><br><span class="line">        mDecor = generateDecor(); <span class="comment">// 初始化DecorView</span></span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (mContentParent == <span class="keyword">null</span>) &#123;</span><br><span class="line">        mContentParent = generateLayout(mDecor); <span class="comment">// 激动，开始布局xml了么？</span></span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">protected</span> ViewGroup <span class="title">generateLayout</span><span class="params">(DecorView decor)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    layoutResource = R.layout.screen_simple; <span class="comment">// 一个模板布局</span></span><br><span class="line">    ...</span><br><span class="line">    View in = mLayoutInflater.inflate(layoutResource, <span class="keyword">null</span>);</span><br><span class="line">    decor.addView(in, <span class="keyword">new</span> ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT));</span><br><span class="line">    mContentRoot = (ViewGroup) in;</span><br><span class="line"></span><br><span class="line">    ViewGroup contentParent = (ViewGroup)findViewById(ID_ANDROID_CONTENT);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="R-layout-screen-simple"><a href="#R-layout-screen-simple" class="headerlink" title="R.layout.screen_simple"></a>R.layout.screen_simple</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span></span><br><span class="line"><span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">/* //device/apps/common/assets/res/layout/screen_simple.xml</span></span><br><span class="line"><span class="comment">**</span></span><br><span class="line"><span class="comment">** Copyright 2006, The Android Open Source Project</span></span><br><span class="line"><span class="comment">**</span></span><br><span class="line"><span class="comment">** Licensed under the Apache License, Version 2.0 (the "License"); </span></span><br><span class="line"><span class="comment">** you may not use this file except in compliance with the License. </span></span><br><span class="line"><span class="comment">** You may obtain a copy of the License at </span></span><br><span class="line"><span class="comment">**</span></span><br><span class="line"><span class="comment">**     http://www.apache.org/licenses/LICENSE-2.0 </span></span><br><span class="line"><span class="comment">**</span></span><br><span class="line"><span class="comment">** Unless required by applicable law or agreed to in writing, software </span></span><br><span class="line"><span class="comment">** distributed under the License is distributed on an "AS IS" BASIS, </span></span><br><span class="line"><span class="comment">** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. </span></span><br><span class="line"><span class="comment">** See the License for the specific language governing permissions and </span></span><br><span class="line"><span class="comment">** limitations under the License.</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">This is an optimized layout for a screen, with the minimum set of features</span></span><br><span class="line"><span class="comment">enabled.</span></span><br><span class="line"><span class="comment">--&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">LinearLayout</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:fitsSystemWindows</span>=<span class="string">"true"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:orientation</span>=<span class="string">"vertical"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">ViewStub</span> <span class="attr">android:id</span>=<span class="string">"@+id/action_mode_bar_stub"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">android:inflatedId</span>=<span class="string">"@+id/action_mode_bar"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">android:layout</span>=<span class="string">"@layout/action_mode_bar"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">android:theme</span>=<span class="string">"?attr/actionBarTheme"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">FrameLayout</span></span></span><br><span class="line"><span class="tag">         <span class="attr">android:id</span>=<span class="string">"@android:id/content"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">android:foregroundInsidePadding</span>=<span class="string">"false"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">android:foregroundGravity</span>=<span class="string">"fill_horizontal|top"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">android:foreground</span>=<span class="string">"?android:attr/windowContentOverlay"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">LinearLayout</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这里解释了Activity.onCreateView打印出来的前三个View</p>
+<h2 id="R-layout-activity-main"><a href="#R-layout-activity-main" class="headerlink" title="R.layout.activity_main"></a>R.layout.activity_main</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">RelativeLayout</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">TextView</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">"@+id/change_text_color"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:text</span>=<span class="string">"Hello World!"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">RelativeLayout</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="Activity-onCreateView-View-parent-String-name-Context-context-AttributeSet-attrs-打印出来的各个字段值："><a href="#Activity-onCreateView-View-parent-String-name-Context-context-AttributeSet-attrs-打印出来的各个字段值：" class="headerlink" title="Activity.onCreateView(View parent, String name, Context context, AttributeSet attrs)打印出来的各个字段值："></a>Activity.onCreateView(View parent, String name, Context context, AttributeSet attrs)打印出来的各个字段值：</h4><table>
+<thead>
+<tr>
+<th>parent</th>
+<th>name</th>
+<th>context</th>
+<th>attrs</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>null</td>
+<td>LinearLayout</td>
+<td>skin.theory.MainActivity@e3ae6f5</td>
+<td>android.content.res.XmlBlock$Parser@7f12c8a</td>
+</tr>
+<tr>
+<td>android.widget.LinearLayout{9fe32fb V.E…… ……I. 0,0-0,0}</td>
+<td>ViewStub</td>
+<td>android.view.ContextThemeWrapper@de65f18</td>
+<td>android.content.res.XmlBlock$Parser@7f12c8a</td>
+</tr>
+<tr>
+<td>android.widget.LinearLayout{9fe32fb V.E…… ……I. 0,0-0,0}</td>
+<td>FrameLayout</td>
+<td>skin.theory.MainActivity@e3ae6f5</td>
+<td>android.content.res.XmlBlock$Parser@7f12c8a</td>
+</tr>
+<tr>
+<td>android.widget.FrameLayout{66e54c4 V.E…… ……I. 0,0-0,0 #1020002 android:id/content}</td>
+<td>RelativeLayout</td>
+<td>skin.theory.MainActivity@e3ae6f5</td>
+<td>android.content.res.XmlBlock$Parser@e65ffad</td>
+</tr>
+<tr>
+<td>android.widget.RelativeLayout{222c2e2 V.E…… ……I. 0,0-0,0}</td>
+<td>TextView</td>
+<td>skin.theory.MainActivity@e3ae6f5</td>
+<td>android.content.res.XmlBlock$Parser@e65ffad</td>
+</tr>
+</tbody></table>
+<p>View层级关系:</p>
+<ul>
+<li>LinearLayout (PhoneWindow.mContentParent)<ul>
+<li>ViewStub</li>
+<li>FrameLayout <font color="red">(android:id/content)</font><ul>
+<li>RelativeLayout<ul>
+<li>TextView</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android/" rel="tag"># Android</a>
+              <a href="/tags/换肤/" rel="tag"># 换肤</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/markdown/" rel="next" title="常用Markdown语法">
+      常用Markdown语法 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#换肤理论基础：View的创建过程。"><span class="nav-number">1.</span> <span class="nav-text">换肤理论基础：View的创建过程。</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#从xml到View："><span class="nav-number">1.1.</span> <span class="nav-text">从xml到View：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#xml布局文件中简写的系统View需要补全前缀"><span class="nav-number">1.1.0.1.</span> <span class="nav-text">xml布局文件中简写的系统View需要补全前缀</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#LayoutInflater构造View可能的选择："><span class="nav-number">1.1.0.2.</span> <span class="nav-text">LayoutInflater构造View可能的选择：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实例化View：LayoutInflater-createView"><span class="nav-number">1.2.</span> <span class="nav-text">实例化View：LayoutInflater.createView()</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#DecorView的初始化-PhoneWindow-mDecorView"><span class="nav-number">1.2.0.1.</span> <span class="nav-text">DecorView的初始化 PhoneWindow.mDecorView</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#R-layout-screen-simple"><span class="nav-number">1.2.0.2.</span> <span class="nav-text">R.layout.screen_simple</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#R-layout-activity-main"><span class="nav-number">1.3.</span> <span class="nav-text">R.layout.activity_main</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Activity-onCreateView-View-parent-String-name-Context-context-AttributeSet-attrs-打印出来的各个字段值："><span class="nav-number">1.3.0.1.</span> <span class="nav-text">Activity.onCreateView(View parent, String name, Context context, AttributeSet attrs)打印出来的各个字段值：</span></a></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">FengShenzhu</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">FengShenzhu</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

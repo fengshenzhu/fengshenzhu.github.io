@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"78.141.198.216","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="系统栏包括了状态栏(StatusBar)和导航栏(NavigationBar)。早期的导航栏时实体按键，现在的手机基本上都使用虚拟导航栏。状态栏和导航栏默认一直显示。APP在系统栏区域显示内容，可让设备一屏显示更多的内容，提升用户体验。当然，利用系统栏显示内容区域，可能会增加App交互的复杂度。">
+<meta name="keywords" content="Android,UI,SystemBar,StatusBar,NavigationBar">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android系统栏UI适配">
+<meta property="og:url" content="http://78.141.198.216/blog/index.html/android-system-bar-adapt/index.html">
+<meta property="og:site_name" content="Find The Way">
+<meta property="og:description" content="系统栏包括了状态栏(StatusBar)和导航栏(NavigationBar)。早期的导航栏时实体按键，现在的手机基本上都使用虚拟导航栏。状态栏和导航栏默认一直显示。APP在系统栏区域显示内容，可让设备一屏显示更多的内容，提升用户体验。当然，利用系统栏显示内容区域，可能会增加App交互的复杂度。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://78.141.198.216/assets/android_system-ui.png">
+<meta property="og:updated_time" content="2020-09-10T09:28:04.771Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android系统栏UI适配">
+<meta name="twitter:description" content="系统栏包括了状态栏(StatusBar)和导航栏(NavigationBar)。早期的导航栏时实体按键，现在的手机基本上都使用虚拟导航栏。状态栏和导航栏默认一直显示。APP在系统栏区域显示内容，可让设备一屏显示更多的内容，提升用户体验。当然，利用系统栏显示内容区域，可能会增加App交互的复杂度。">
+<meta name="twitter:image" content="http://78.141.198.216/assets/android_system-ui.png">
+
+<link rel="canonical" href="http://78.141.198.216/blog/index.html/android-system-bar-adapt/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>Android系统栏UI适配 | Find The Way</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Find The Way</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">You cannot change the world, but you can change an app.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://78.141.198.216/blog/index.html/android-system-bar-adapt/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="FengShenzhu">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Find The Way">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Android系统栏UI适配
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-10-18 19:00:00" itemprop="dateCreated datePublished" datetime="2018-10-18T19:00:00+08:00">2018-10-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-10 17:28:04" itemprop="dateModified" datetime="2020-09-10T17:28:04+08:00">2020-09-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>系统栏包括了状态栏(StatusBar)和导航栏(NavigationBar)。早期的导航栏时实体按键，现在的手机基本上都使用虚拟导航栏。<br>状态栏和导航栏默认一直显示。APP在系统栏区域显示内容，可让设备一屏显示更多的内容，提升用户体验。当然，利用系统栏显示内容区域，可能会增加App交互的复杂度。</p>
+<a id="more"></a>
+<p><img src="/assets/android_system-ui.png" alt="img" title="状态栏和导航栏"></p>
+<h2 id="隐藏状态栏"><a href="#隐藏状态栏" class="headerlink" title="隐藏状态栏"></a>隐藏状态栏</h2><p>状态栏区域用于显示系统网络、电池、时间和通知栏消息Logo等。<br>隐藏状态栏，让内容显示在状态栏下可以通过在xml设置Activity的Theme，也可以通过代码。<br>通过Activity Theme隐藏状态栏：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowFullscreen"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>通过代码隐藏状态栏：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,</span><br><span class="line">        WindowManager.LayoutParams.FLAG_FULLSCREEN)</span><br></pre></td></tr></table></figure>
+
+<p>官方推荐的代码隐藏方式是Android 4.1以下用上面代码，4.1及以上使用设置DecorView的systemUiVisibility Flag：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN</span><br></pre></td></tr></table></figure>
+
+<p>但是效果并不好。4.1及以上内容区会抖动(resize)，而且每次窗口重新获取焦点状态栏都会重新出来，需在<code>onWindowFocusChanged()</code>再次调用代码隐藏。所以若用代码实现隐藏状态栏，推荐使用设置Window Flag的方式，效果同设置Activity Theme一样好。<br>Window重新获得焦点时，状态栏会自动出现并消失，此时的状态栏4.4之前是默认的背景色，4.4之后是半透明的。4.4之后可以通过手势从屏幕上边缘向下拖拽显示出半透明状态栏，几秒钟后自动隐藏。<br>在设计上，有ActionBar的界面状态栏隐藏时应确保ActionBar也隐藏。</p>
+<h2 id="状态栏显示内容"><a href="#状态栏显示内容" class="headerlink" title="状态栏显示内容"></a>状态栏显示内容</h2><p>从Android 4.1开始内容区可以显示在状态栏下面。该模式适合内容区顶部是没有手势交互纯粹内容显示区。如果状态栏下可能显示内容区的手势操作View，用户操作该区域时APP并不能响应，会让用户费解。<br>通过代码设置内容区显示在状态栏：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.JELLY_BEAN) &#123;</span><br><span class="line">    activity.window.decorView.systemUiVisibility = </span><br><span class="line">            View.SYSTEM_UI_FLAG_LAYOUT_STABLE or</span><br><span class="line">            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然而，仅让内容区显示在状态栏下并没有扩大可视内容区。需要设置状态栏透明度才能把状态栏变成可视内容区。<br>代码设置状态栏颜色：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.LOLLIPOP) &#123;</span><br><span class="line">    activity.window.statusBarColor = Color.TRANSPARENT</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>xml Theme设置状态栏颜色(v21)：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:statusBarColor"</span>&gt;</span>#00ff00<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>所以，要在状态栏下显示内容，从Android 5.0开始适配才有意义。透明状态栏下就不要放ActionBar了，否则会挑战审美下限。<br>对状态栏设置透明度可能出现状态栏下内容区为偏白色。默认的状态栏为深色模式，状态栏的图标为偏白色。状态栏为偏白色后，上面的图片容易看不清。此时需设置状态栏为浅色模式，让状态栏上的图片显示偏深色，这需要Android 6.0版本才开始支持。<br>代码设置浅色状态栏：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.M) &#123;</span><br><span class="line">    activity.window.decorView.systemUiVisibility = </span><br><span class="line">            View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>xml Theme设置状态栏浅色模式(v23)：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowLightStatusBar"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>如果碰到需要通过设置xml里根布局<code>android:fitsSystemWindows</code>属性来适配或者通过设置xml根布局的顶部留空大小来适配内容区和状态栏的重叠问题，先要考虑清楚你的界面是否真的需要设置特殊的系统栏模式。通过<code>fitsSystemWindows</code>适配系统会把根布局的孩子往下移到状态栏下，往往并没有增大内容显示区。更复杂的情况可能需手动设置顶部多个View的顶部留空属性(paddingTop/marginTop)。如果适配后发现内容显示区并没有增大，就不要犹豫改用普通默认系统栏模式。<br>如果需求仅需在半透明系统栏下显示内容区，从Android 4.4开始可以简单的通过设置Theme实现：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowTranslucentStatus"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowTranslucentNavigation"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="隐藏导航栏"><a href="#隐藏导航栏" class="headerlink" title="隐藏导航栏"></a>隐藏导航栏</h2><p>对于有虚拟导航栏的手机，隐藏导航栏可以扩大内容显示区。在设计上，隐藏导航栏的同时需同时隐藏状态栏。使用该模式时需配合上面介绍的隐藏状态栏的方法，再加上隐藏导航栏的代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.JELLY_BEAN) &#123;</span><br><span class="line">    activity.window.decorView.systemUiVisibility = </span><br><span class="line">            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>该模式在触摸屏幕时导航栏会再次弹出并引起内容区Resize发生抖动，效果并不好。而且每次出现后要再次隐藏需调用代码再执行一次。</p>
+<h2 id="导航栏显示内容"><a href="#导航栏显示内容" class="headerlink" title="导航栏显示内容"></a>导航栏显示内容</h2><p>从Android 4.1开始可以让导航栏区域编程内容区。和状态栏显示内容一样，需设置导航栏的透明度，让导航栏下内容区可见，这种模式才有意义。这种模式常配合状态栏显示内容一起使用。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 设置导航栏区域作为内容区</span></span><br><span class="line"><span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.JELLY_BEAN) &#123;</span><br><span class="line">    activity.window.decorView.systemUiVisibility = </span><br><span class="line">            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or </span><br><span class="line">            View.SYSTEM_UI_FLAG_LAYOUT_STABLE</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代码设置系统栏颜色：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 设置状态栏和导航栏透明度，是系统栏下内容区可见</span></span><br><span class="line"><span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.LOLLIPOP) &#123;</span><br><span class="line">    activity.window.statusBarColor = Color.TRANSPARENT</span><br><span class="line">    activity.window.navigationBarColor = Color.TRANSPARENT</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>xml Theme设置状态栏颜色(v21)：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:statusBarColor"</span>&gt;</span>#00ff00<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:navigationBarColor"</span>&gt;</span>#00ff00<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="全屏模式-Lean-Back"><a href="#全屏模式-Lean-Back" class="headerlink" title="全屏模式-Lean Back"></a>全屏模式-Lean Back</h2><p>从Android 4.1开始支持Lean Back全屏模式。在Lean Back全屏模式下，触摸屏幕任何地方都会退出全屏模式。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 进入Lean Back全屏模式</span></span><br><span class="line"><span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.JELLY_BEAN) &#123;</span><br><span class="line">    activity.window.decorView.systemUiVisibility =  </span><br><span class="line">            View.SYSTEM_UI_FLAG_FULLSCREEN or </span><br><span class="line">            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or <span class="comment">// hide</span></span><br><span class="line">            View.SYSTEM_UI_FLAG_LAYOUT_STABLE or </span><br><span class="line">            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or </span><br><span class="line">            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN <span class="comment">// stable</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>为优化用户体验，一般进入Activity时设置全屏模式，用户退出全屏模式后如果用户触摸内容区，立即调用代码再次进入全屏模式，否则若干秒后再次调用代码自动进入全屏模式。当Activity窗口重新获取焦点时立即进入全屏模式。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 退出全屏</span></span><br><span class="line"><span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.JELLY_BEAN) &#123;</span><br><span class="line">    activity.window.decorView.systemUiVisibility = </span><br><span class="line">            View.SYSTEM_UI_FLAG_LAYOUT_STABLE or </span><br><span class="line">            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or </span><br><span class="line">            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 监听系统栏可见变化</span></span><br><span class="line">window.decorView.setOnSystemUiVisibilityChangeListener &#123; visibility -&gt;</span><br><span class="line">    <span class="keyword">if</span> (visibility and View.SYSTEM_UI_FLAG_FULLSCREEN == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// system ui visible, should hide it delayed</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// system ui gone</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="全屏模式-Immersive"><a href="#全屏模式-Immersive" class="headerlink" title="全屏模式-Immersive"></a>全屏模式-Immersive</h2><p>从Android4.4开始支持沉浸式全屏模式。沉浸式全屏模式与Lean Back全屏模式基本相同，只不过默认情况下，Lean Back模式触摸屏幕就会退出全屏模式，而Immersive模式要从屏幕顶部下滑出状态栏或者从底部上滑出导航栏才能退出全屏模式。用法同Lean Back。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 进入Immersive全屏模式，比Lean Back多一个View.SYSTEM_UI_FLAG_IMMERSIVE flag</span></span><br><span class="line"><span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.KITKAT) &#123;</span><br><span class="line">    activity.window.decorView.systemUiVisibility = </span><br><span class="line">            View.SYSTEM_UI_FLAG_IMMERSIVE or <span class="comment">// immerse</span></span><br><span class="line">            View.SYSTEM_UI_FLAG_FULLSCREEN or </span><br><span class="line">            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or <span class="comment">// hide</span></span><br><span class="line">            View.SYSTEM_UI_FLAG_LAYOUT_STABLE or </span><br><span class="line">            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or </span><br><span class="line">            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN <span class="comment">// stable</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="全屏模式-Immersive-Sticky"><a href="#全屏模式-Immersive-Sticky" class="headerlink" title="全屏模式-Immersive Sticky"></a>全屏模式-Immersive Sticky</h2><p>从Android 4.4开始支持Sticky沉浸全屏模式，用户可通过从屏幕顶部下滑出状态栏或者从底部上滑出导航栏才能退出全屏模式，此时的系统栏为半透明。系统会在若干秒后自动隐藏系统栏，用户触摸屏幕也会触发隐藏，无需监听系统栏可见性变化。这种模式适合严重需要用户沉浸场景的页面。需要在Window每次获取焦点时设置。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.KITKAT) &#123;</span><br><span class="line">    activity.window.decorView.systemUiVisibility = </span><br><span class="line">            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or <span class="comment">// immerse sticky</span></span><br><span class="line">            View.SYSTEM_UI_FLAG_FULLSCREEN or </span><br><span class="line">            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or <span class="comment">// hide</span></span><br><span class="line">            View.SYSTEM_UI_FLAG_LAYOUT_STABLE or </span><br><span class="line">            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or </span><br><span class="line">            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN <span class="comment">// stable</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>隐藏NavigationBar会被键盘弹起破坏，需要手动再次隐藏</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android/" rel="tag"># Android</a>
+              <a href="/tags/UI/" rel="tag"># UI</a>
+              <a href="/tags/SystemBar/" rel="tag"># SystemBar</a>
+              <a href="/tags/StatusBar/" rel="tag"># StatusBar</a>
+              <a href="/tags/NavigationBar/" rel="tag"># NavigationBar</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/framework_window/" rel="prev" title="Android Window">
+      <i class="fa fa-chevron-left"></i> Android Window
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/ubuntu-jenkins/" rel="next" title="Ubuntu Jenkins">
+      Ubuntu Jenkins <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#隐藏状态栏"><span class="nav-number">1.</span> <span class="nav-text">隐藏状态栏</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#状态栏显示内容"><span class="nav-number">2.</span> <span class="nav-text">状态栏显示内容</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#隐藏导航栏"><span class="nav-number">3.</span> <span class="nav-text">隐藏导航栏</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#导航栏显示内容"><span class="nav-number">4.</span> <span class="nav-text">导航栏显示内容</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#全屏模式-Lean-Back"><span class="nav-number">5.</span> <span class="nav-text">全屏模式-Lean Back</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#全屏模式-Immersive"><span class="nav-number">6.</span> <span class="nav-text">全屏模式-Immersive</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#全屏模式-Immersive-Sticky"><span class="nav-number">7.</span> <span class="nav-text">全屏模式-Immersive Sticky</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">FengShenzhu</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">FengShenzhu</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
