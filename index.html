@@ -244,10 +244,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-09-10 19:47:47 / Modified: 19:21:37" itemprop="dateCreated datePublished" datetime="2020-09-10T19:47:47+08:00">2020-09-10</time>
+              <time title="Created: 2020-09-10 19:47:47" itemprop="dateCreated datePublished" datetime="2020-09-10T19:47:47+08:00">2020-09-10</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-17 17:29:28" itemprop="dateModified" datetime="2020-09-17T17:29:28+08:00">2020-09-17</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -255,6 +261,10 @@
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/JetPack/" itemprop="url" rel="index"><span itemprop="name">JetPack</span></a>
                 </span>
             </span>
 
@@ -269,7 +279,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>Support Library 26.1.0之后的<code>Fragments</code>和<code>Activity</code>都已经继承了<code>LifecycleOwner</code>接口</p>
+          <h2 id="Why-Lifecycle"><a href="#Why-Lifecycle" class="headerlink" title="Why Lifecycle"></a>Why Lifecycle</h2><p>Activity和Fragment在设计之初就承载了太多，即充当View的角色，又接受Framework的生命周期管理。开发者需在对应的生命周期回调里处理相应逻辑，导致Activity和Fragment往往又臭又长，职责不清。</p>
+<h2 id="Lifecycle原理"><a href="#Lifecycle原理" class="headerlink" title="Lifecycle原理"></a>Lifecycle原理</h2><p>Support Library 26.1.0之后的<code>Fragments</code>和<code>Activity</code>都已经继承了<code>LifecycleOwner</code>接口</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/jetpack-lifecycle/#more" rel="contents">
@@ -1606,7 +1617,7 @@
         </a>
       </div>
       <div class="site-state-item site-state-categories">
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">categories</span>
       </div>
       <div class="site-state-item site-state-tags">
